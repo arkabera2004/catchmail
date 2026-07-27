@@ -1,13 +1,16 @@
 import path from 'node:path';
 import dotenv from 'dotenv';
-import cron from 'node-cron';
 
-// .env lives at the repo root, one level up from backend/.
+// .env lives at the repo root, one level up from backend/. This must run
+// before anything that reads process.env is imported — static ES module
+// imports are hoisted above top-level code, so those imports are deferred
+// (dynamic) until after dotenv.config() has run.
 dotenv.config({ path: path.resolve(import.meta.dirname, '../.env') });
 
-import { createApp } from './app.js';
-import { runSync } from './jobs/sync.js';
-import { runDigest } from './jobs/digest.js';
+const cron = (await import('node-cron')).default;
+const { createApp } = await import('./app.js');
+const { runSync } = await import('./jobs/sync.js');
+const { runDigest } = await import('./jobs/digest.js');
 
 const app = createApp();
 const port = process.env.PORT || 4000;

@@ -24,6 +24,7 @@ create table if not exists tasks (
   source_email_link text,
   confidence text check (confidence in ('high', 'medium', 'low')),
   status text not null default 'open' check (status in ('open', 'done')),
+  calendar_event_id text,
   created_at timestamptz not null default now(),
   unique (user_id, source_email_id, task_text)
 );

@@ -27,4 +27,5 @@ export const api = {
   disconnect: () => request('/api/settings/disconnect', { method: 'POST' }),
   deleteAllData: () => request('/api/settings/delete-all', { method: 'POST' }),
   checkout: () => request('/api/billing/checkout', { method: 'POST' }),
+  syncCalendar: () => request('/api/calendar/sync', { method: 'POST' }),
 };

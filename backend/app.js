@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import taskRoutes from './routes/tasks.js';
 import settingsRoutes from './routes/settings.js';
 import billingRoutes from './routes/billing.js';
+import calendarRoutes from './routes/calendar.js';
 
 export function createApp() {
   const app = express();
@@ -42,6 +43,7 @@ export function createApp() {
   app.use('/api/tasks', taskRoutes);
   app.use('/api/settings', settingsRoutes);
   app.use('/api/billing', billingRoutes);
+  app.use('/api/calendar', calendarRoutes);
 
   return app;
 }

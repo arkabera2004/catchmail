@@ -74,7 +74,9 @@ function hasCalendarPart(payload) {
  * no-reply/notification senders, newsletters (List-Unsubscribe header), and
  * calendar invites.
  */
-export function shouldSkipMessage({ headers, payload }) {
+export function shouldSkipMessage(message) {
+  const payload = message.payload;
+  const headers = payload?.headers || [];
   const from = headerValue(headers, 'From');
   const listUnsubscribe = headerValue(headers, 'List-Unsubscribe');
   const precedence = headerValue(headers, 'Precedence');
@@ -157,14 +159,19 @@ async function processMessage(user, parsed) {
 }
 
 async function fetchAndProcess(gmail, user, messageId) {
-  const { data: message } = await gmail.users.messages.get({
-    userId: 'me',
-    id: messageId,
-    format: 'full',
-  });
-  if (shouldSkipMessage(message)) return;
-  const parsed = parseMessage(message);
-  await processMessage(user, parsed);
+  try {
+    const { data: message } = await gmail.users.messages.get({
+      userId: 'me',
+      id: messageId,
+      format: 'full',
+    });
+    if (shouldSkipMessage(message)) return;
+    const parsed = parseMessage(message);
+    await processMessage(user, parsed);
+  } catch (err) {
+    // One bad/unprocessable message shouldn't abort the whole backfill/sync batch.
+    console.error(`[gmail] failed to process message ${messageId} for user ${user.id}:`, err.message);
+  }
 }
 
 export async function backfillLast7Days(user) {
