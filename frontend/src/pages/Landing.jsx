@@ -3,7 +3,7 @@ import { api } from '../lib/api.js';
 const FEATURES = [
   {
     title: 'Finds hidden tasks',
-    body: "Claude reads every email and picks out requests, deadlines, and follow-ups — even ones you'd scroll right past.",
+    body: "Gemini reads every email and picks out requests, deadlines, and follow-ups — even ones you'd scroll right past.",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
         <path d="M9 12.75l1.5 1.5 3-4.5M12 3a9 9 0 100 18 9 9 0 000-18z" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
@@ -59,7 +59,7 @@ export default function Landing() {
 
       <main className="max-w-3xl mx-auto w-full px-6 pt-16 pb-24 text-center flex flex-col items-center gap-8 animate-fade-in">
         <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
-          Powered by Claude
+          Powered by Gemini
         </span>
         <h1 className="text-4xl sm:text-6xl font-extrabold leading-[1.05] tracking-tight">
           Never miss a task

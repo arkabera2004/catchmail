@@ -1,6 +1,6 @@
 # CatchMail
 
-CatchMail scans your Gmail inbox, uses Claude (Haiku) to detect implicit and
+CatchMail scans your Gmail inbox, uses Gemini to detect implicit and
 explicit tasks hidden in emails — "can you send this by Friday?" — and turns
 them into a clean, trackable to-do list with deadlines. A daily digest email
 summarizes new tasks so nothing slips through.
@@ -15,7 +15,7 @@ summarizes new tasks so nothing slips through.
    `users.history.list` for incremental sync (not a full re-scan).
 4. **Extraction** — new emails are filtered (no-reply senders, newsletters,
    calendar invites, automated notifications are skipped before ever calling
-   the LLM) then sent to Claude Haiku with a structured-output prompt; the
+   the LLM) then sent to Gemini with a structured-output prompt; the
    parsed JSON becomes rows in the `tasks` table.
 5. **Dashboard** — a React app shows tasks with deadline, confidence, status,
    and a link back to the source email; you can mark done, edit the deadline,
@@ -33,7 +33,7 @@ catchmail/
 ├── frontend/          # React + Tailwind app (Vite)
 ├── backend/            # Express API + cron jobs
 │   ├── routes/          # auth, tasks, settings, billing
-│   ├── services/        # gmail.js, claude.js, resend.js, razorpay.js
+│   ├── services/        # gmail.js, gemini.js, calendar.js, resend.js, razorpay.js
 │   ├── jobs/             # sync.js (15-min poll), digest.js (daily email)
 │   └── db/               # supabase client + schema.sql
 ├── .env.example
@@ -46,7 +46,7 @@ catchmail/
 - Node.js 20+
 - A Supabase project
 - A Google Cloud project with the Gmail API enabled
-- An Anthropic API key
+- A Gemini API key (free tier, no card required)
 - A Resend account with a verified sending domain
 - A Razorpay account (test mode is fine)
 
@@ -98,7 +98,7 @@ catchmail/
 
 All variables live in `.env.example` at the project root, each with a comment
 explaining where to obtain it: Google Cloud Console (OAuth + Gmail API),
-Anthropic Console (Claude API key), Supabase project settings, Resend
+Google AI Studio (Gemini API key), Supabase project settings, Resend
 dashboard, Razorpay dashboard (test mode), plus a generated `ENCRYPTION_KEY`
 and `SESSION_SECRET` (`openssl rand -hex 32` for both).
 
@@ -127,7 +127,7 @@ and `SESSION_SECRET` (`openssl rand -hex 32` for both).
 
 ## Notes on cost control
 
-Before any email is sent to Claude, `backend/services/gmail.js`'s
+Before any email is sent to Gemini, `backend/services/gmail.js`'s
 `shouldSkipMessage` filters out no-reply senders, newsletters (via the
-`List-Unsubscribe` header), and calendar invites — these never incur an
-Anthropic API call.
+`List-Unsubscribe` header), and calendar invites — these never incur a
+Gemini API call.

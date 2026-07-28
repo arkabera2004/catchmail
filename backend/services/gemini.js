@@ -1,12 +1,12 @@
-import Anthropic from '@anthropic-ai/sdk';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 let client;
 function getClient() {
   if (!client) {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      throw new Error('ANTHROPIC_API_KEY is not set — cannot run task extraction.');
+    if (!process.env.GEMINI_API_KEY) {
+      throw new Error('GEMINI_API_KEY is not set — cannot run task extraction.');
     }
-    client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    client = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
   }
   return client;
 }
@@ -47,36 +47,29 @@ function stripCodeFences(text) {
 }
 
 /**
- * Sends an email's subject/sender/body to Claude Haiku for structured task
+ * Sends an email's subject/sender/body to Gemini for structured task
  * extraction. Returns { has_task, tasks: [...] } or { has_task: false, tasks: [] }
  * if the response can't be parsed as valid JSON.
  */
 export async function extractTasks({ subject, sender, receivedDate, body }) {
-  const anthropic = getClient();
-
-  const response = await anthropic.messages.create({
-    model: 'claude-haiku-4-5',
-    max_tokens: 1024,
-    system: SYSTEM_PROMPT,
-    messages: [
-      {
-        role: 'user',
-        content: buildUserMessage({ subject, sender, receivedDate, body }),
-      },
-    ],
+  const genAI = getClient();
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-flash-latest',
+    systemInstruction: SYSTEM_PROMPT,
   });
 
-  const textBlock = response.content.find((b) => b.type === 'text');
-  if (!textBlock) return { has_task: false, tasks: [] };
+  const result = await model.generateContent(buildUserMessage({ subject, sender, receivedDate, body }));
+  const text = result.response.text();
+  if (!text) return { has_task: false, tasks: [] };
 
   try {
-    const parsed = JSON.parse(stripCodeFences(textBlock.text));
+    const parsed = JSON.parse(stripCodeFences(text));
     if (typeof parsed.has_task !== 'boolean' || !Array.isArray(parsed.tasks)) {
       return { has_task: false, tasks: [] };
     }
     return parsed;
   } catch (err) {
-    console.warn('[claude] failed to parse extraction response as JSON:', err.message);
+    console.warn('[gemini] failed to parse extraction response as JSON:', err.message);
     return { has_task: false, tasks: [] };
   }
 }

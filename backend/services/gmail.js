@@ -1,7 +1,7 @@
 import { google } from 'googleapis';
 import { supabase } from '../db/supabase.js';
 import { decrypt } from '../lib/crypto.js';
-import { extractTasks } from './claude.js';
+import { extractTasks } from './gemini.js';
 
 const NOREPLY_PATTERNS = [
   /no-?reply/i,
@@ -70,7 +70,7 @@ function hasCalendarPart(payload) {
 }
 
 /**
- * Pre-LLM filter to save on Claude API calls. Skips obvious non-candidates:
+ * Pre-LLM filter to save on Gemini API calls. Skips obvious non-candidates:
  * no-reply/notification senders, newsletters (List-Unsubscribe header), and
  * calendar invites.
  */
@@ -94,7 +94,7 @@ export function parseMessage(message) {
   const subject = headerValue(headers, 'Subject');
   const from = headerValue(headers, 'From');
   const dateHeader = headerValue(headers, 'Date');
-  const body = decodeBody(message.payload).slice(0, 6000); // cap body size sent to Claude
+  const body = decodeBody(message.payload).slice(0, 6000); // cap body size sent to Gemini
   return {
     id: message.id,
     threadId: message.threadId,
