@@ -124,6 +124,13 @@ export default function Settings() {
             Delete all data
           </button>
         </section>
+
+        <p className="text-center text-sm text-slate-400 pt-2">
+          Having an issue?{' '}
+          <a href="mailto:arkabera2004@gmail.com" className="text-indigo-500 hover:underline">
+            arkabera2004@gmail.com
+          </a>
+        </p>
       </main>
     </div>
   );

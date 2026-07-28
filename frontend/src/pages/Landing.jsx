@@ -1,4 +1,7 @@
+import { Link } from 'react-router-dom';
 import { api } from '../lib/api.js';
+import MarketingHeader from '../components/MarketingHeader.jsx';
+import MarketingFooter from '../components/MarketingFooter.jsx';
 
 const FEATURES = [
   {
@@ -29,11 +32,21 @@ const FEATURES = [
       </svg>
     ),
   },
+  {
+    title: 'Search that groups',
+    body: 'Search "Wayam" and see every task from every email about it, even across different threads — typo-tolerant, always grouped.',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.75" />
+        <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+      </svg>
+    ),
+  },
 ];
 
 export default function Landing() {
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
       <div
         className="absolute inset-x-0 top-0 h-[520px] -z-10"
         style={{
@@ -42,20 +55,7 @@ export default function Landing() {
         }}
       />
 
-      <header className="max-w-6xl mx-auto w-full px-6 py-6 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center">
-            <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-white">
-              <path d="M4 6h16v12H4z" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" />
-              <path d="M4 7l8 6 8-6" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <span className="text-lg font-bold tracking-tight">CatchMail</span>
-        </div>
-        <a href="/settings" className="text-sm text-slate-500 hover:text-slate-900 transition">
-          Settings
-        </a>
-      </header>
+      <MarketingHeader />
 
       <main className="max-w-3xl mx-auto w-full px-6 pt-16 pb-24 text-center flex flex-col items-center gap-8 animate-fade-in">
         <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-3 py-1 rounded-full">
@@ -81,11 +81,12 @@ export default function Landing() {
           Connect Gmail
         </a>
         <p className="text-xs text-slate-400">
-          Read-only access. We never send email on your behalf.
+          Read-only access. We never send email on your behalf. Free forever for light use —
+          see <Link to="/pricing" className="text-indigo-500 hover:underline">pricing</Link>.
         </p>
       </main>
 
-      <section className="max-w-5xl mx-auto w-full px-6 pb-24 grid sm:grid-cols-3 gap-6">
+      <section className="max-w-5xl mx-auto w-full px-6 pb-24 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {FEATURES.map((f) => (
           <div key={f.title} className="rounded-2xl border border-slate-100 bg-slate-50/60 p-6 text-left">
             <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-indigo-600 mb-4">
@@ -97,9 +98,30 @@ export default function Landing() {
         ))}
       </section>
 
-      <footer className="text-center text-xs text-slate-400 py-8 border-t border-slate-100">
-        &copy; {new Date().getFullYear()} CatchMail
-      </footer>
+      <section className="max-w-4xl mx-auto w-full px-6 pb-24">
+        <div className="rounded-3xl bg-slate-900 text-white px-8 py-14 text-center">
+          <h2 className="text-3xl font-extrabold tracking-tight mb-3">Ready to stop re-reading your inbox?</h2>
+          <p className="text-slate-300 mb-8 max-w-lg mx-auto">
+            Free to start. Upgrade only if your inbox needs more than 30 tasks a month.
+          </p>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            <a
+              href={api.connectGmailUrl}
+              className="inline-flex items-center bg-white text-slate-900 px-6 py-3 rounded-xl font-semibold hover:bg-slate-100 transition"
+            >
+              Connect Gmail
+            </a>
+            <Link
+              to="/pricing"
+              className="inline-flex items-center border border-slate-700 text-white px-6 py-3 rounded-xl font-semibold hover:bg-slate-800 transition"
+            >
+              See pricing
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <MarketingFooter />
     </div>
   );
 }
