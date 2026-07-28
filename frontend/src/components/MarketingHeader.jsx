@@ -3,6 +3,7 @@ import { api } from '../lib/api.js';
 
 const NAV_LINKS = [
   { to: '/pricing', label: 'Pricing' },
+  { to: '/faq', label: 'FAQ' },
   { to: '/about', label: 'About' },
   { to: '/contact', label: 'Contact' },
 ];

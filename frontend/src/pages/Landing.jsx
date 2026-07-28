@@ -3,6 +3,30 @@ import { api } from '../lib/api.js';
 import MarketingHeader from '../components/MarketingHeader.jsx';
 import MarketingFooter from '../components/MarketingFooter.jsx';
 
+const TRUST_BADGES = [
+  'Read-only Gmail access',
+  'AES-256 encrypted tokens',
+  'Delete all data anytime',
+];
+
+const STEPS = [
+  {
+    step: '1',
+    title: 'Connect Gmail',
+    body: 'One click, read-only. We scan the last 7 days to start, then poll every 15 minutes.',
+  },
+  {
+    step: '2',
+    title: 'Gemini extracts tasks',
+    body: "Newsletters and notifications get filtered out first. Everything else gets read for asks, deadlines, and follow-ups.",
+  },
+  {
+    step: '3',
+    title: 'Act on it',
+    body: 'Review on your dashboard, mark things done, or push every open task into Google Calendar in one click.',
+  },
+];
+
 const FEATURES = [
   {
     title: 'Finds hidden tasks',
@@ -80,15 +104,27 @@ export default function Landing() {
           </svg>
           Connect Gmail
         </a>
-        <p className="text-xs text-slate-400">
-          Read-only access. We never send email on your behalf. Free forever for light use —
-          see <Link to="/pricing" className="text-indigo-500 hover:underline">pricing</Link>.
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-400">
+          {TRUST_BADGES.map((badge) => (
+            <span key={badge} className="inline-flex items-center gap-1.5">
+              <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 text-emerald-500">
+                <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              {badge}
+            </span>
+          ))}
+        </div>
+        <p className="text-xs text-slate-400 -mt-4">
+          Free forever for light use — see <Link to="/pricing" className="text-indigo-500 hover:underline">pricing</Link>.
         </p>
       </main>
 
       <section className="max-w-5xl mx-auto w-full px-6 pb-24 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {FEATURES.map((f) => (
-          <div key={f.title} className="rounded-2xl border border-slate-100 bg-slate-50/60 p-6 text-left">
+          <div
+            key={f.title}
+            className="rounded-2xl border border-slate-100 bg-slate-50/60 p-6 text-left transition hover:border-slate-200 hover:shadow-md hover:-translate-y-0.5"
+          >
             <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-indigo-600 mb-4">
               {f.icon}
             </div>
@@ -96,6 +132,21 @@ export default function Landing() {
             <p className="text-sm text-slate-600 leading-relaxed">{f.body}</p>
           </div>
         ))}
+      </section>
+
+      <section className="max-w-5xl mx-auto w-full px-6 pb-24">
+        <h2 className="text-3xl font-extrabold tracking-tight text-center mb-12">How it works</h2>
+        <div className="grid sm:grid-cols-3 gap-8">
+          {STEPS.map((s) => (
+            <div key={s.step} className="text-center sm:text-left">
+              <div className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-sm mb-4 mx-auto sm:mx-0">
+                {s.step}
+              </div>
+              <h3 className="font-semibold text-slate-900 mb-1.5">{s.title}</h3>
+              <p className="text-sm text-slate-600 leading-relaxed">{s.body}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="max-w-4xl mx-auto w-full px-6 pb-24">

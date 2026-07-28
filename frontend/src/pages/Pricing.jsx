@@ -64,10 +64,10 @@ export default function Pricing() {
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`rounded-2xl p-8 border ${
+              className={`rounded-2xl p-8 border transition hover:-translate-y-1 ${
                 plan.highlight
-                  ? 'border-slate-900 bg-slate-900 text-white shadow-xl'
-                  : 'border-slate-200 bg-white'
+                  ? 'border-slate-900 bg-slate-900 text-white shadow-xl hover:shadow-2xl'
+                  : 'border-slate-200 bg-white hover:shadow-md hover:border-slate-300'
               }`}
             >
               <h2 className={`text-lg font-semibold mb-1 ${plan.highlight ? 'text-white' : 'text-slate-900'}`}>
