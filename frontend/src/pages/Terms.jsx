@@ -3,16 +3,16 @@ import MarketingFooter from '../components/MarketingFooter.jsx';
 
 export default function Terms() {
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors">
       <MarketingHeader />
 
       <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-16">
         <h1 className="text-4xl font-extrabold tracking-tight mb-2">Terms of Service</h1>
-        <p className="text-sm text-slate-400 mb-10">Last updated: July 2026</p>
+        <p className="text-sm text-slate-500 dark:text-slate-500 mb-10">Last updated: July 2026</p>
 
-        <div className="space-y-8 text-slate-600 leading-relaxed">
+        <div className="space-y-8 text-slate-600 dark:text-slate-400 leading-relaxed">
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-2">1. Using CatchMail</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">1. Using CatchMail</h2>
             <p>
               By connecting your Gmail account you agree to these terms. CatchMail scans
               your inbox to surface tasks and lets you push them to Google Calendar. You're
@@ -22,7 +22,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-2">2. Plans and billing</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">2. Plans and billing</h2>
             <p>
               The Free plan includes one connected inbox and up to 30 extracted tasks per
               month. The Pro plan removes that cap and is billed on a recurring basis via
@@ -33,7 +33,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-2">3. Acceptable use</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">3. Acceptable use</h2>
             <p>
               Don't use CatchMail to connect an inbox you don't have authorization to access,
               attempt to disrupt the service, or reverse-engineer the extraction pipeline to
@@ -42,7 +42,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-2">4. No warranty</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">4. No warranty</h2>
             <p>
               Task extraction is powered by an AI model and won't be perfect — it can miss
               tasks or misread a deadline. Review extracted tasks before relying on them for
@@ -52,7 +52,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-2">5. Limitation of liability</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">5. Limitation of liability</h2>
             <p>
               To the maximum extent permitted by law, CatchMail and its operator aren't
               liable for indirect, incidental, or consequential damages arising from your
@@ -62,7 +62,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-2">6. Termination</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">6. Termination</h2>
             <p>
               You can stop using CatchMail and delete your data at any time from Settings.
               We may suspend accounts that violate these terms.
@@ -70,10 +70,10 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold text-slate-900 mb-2">7. Contact</h2>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">7. Contact</h2>
             <p>
               Questions about these terms? Email{' '}
-              <a href="mailto:arkabera2004@gmail.com" className="text-indigo-500 hover:underline">
+              <a href="mailto:arkabera2004@gmail.com" className="text-indigo-500 dark:text-indigo-400 hover:underline">
                 arkabera2004@gmail.com
               </a>
               .

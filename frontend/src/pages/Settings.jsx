@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
+import ThemeToggle from '../components/ThemeToggle.jsx';
 
 function loadRazorpayScript() {
   return new Promise((resolve, reject) => {
@@ -68,66 +69,73 @@ export default function Settings() {
   }
 
   if (!user) {
-    return <div className="min-h-screen flex items-center justify-center text-slate-500">Loading…</div>;
+    return (
+      <div className="min-h-screen dark:bg-slate-950 flex items-center justify-center text-slate-500 dark:text-slate-400">
+        Loading…
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/dashboard" className="text-lg font-bold text-slate-900 tracking-tight">
+          <Link to="/dashboard" className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
             CatchMail
           </Link>
-          <Link to="/dashboard" className="text-sm text-slate-500 hover:text-slate-900 transition">
-            Back to dashboard
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard" className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+              Back to dashboard
+            </Link>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-6 py-8 space-y-5">
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Settings</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Settings</h1>
 
         {message && (
-          <div className="bg-indigo-50 text-indigo-700 text-sm px-4 py-2.5 rounded-lg animate-fade-in">{message}</div>
+          <div className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-sm px-4 py-2.5 rounded-lg animate-fade-in">{message}</div>
         )}
 
-        <section className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
-          <h2 className="font-semibold text-slate-900">Account</h2>
-          <p className="text-sm text-slate-500">{user.email}</p>
-          <p className="text-sm text-slate-500 capitalize">Plan: {user.plan}</p>
+        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-3">
+          <h2 className="font-semibold text-slate-900 dark:text-white">Account</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{user.email}</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 capitalize">Plan: {user.plan}</p>
           {user.plan === 'free' && (
-            <button onClick={handleUpgrade} className="bg-slate-900 text-white text-sm px-4 py-2 rounded-lg font-medium hover:bg-slate-800 transition">
+            <button onClick={handleUpgrade} className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm px-4 py-2 rounded-lg font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition">
               Upgrade to Pro
             </button>
           )}
         </section>
 
-        <section className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
-          <h2 className="font-semibold text-slate-900">Gmail sync</h2>
-          <p className="text-sm text-slate-500">
+        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-3">
+          <h2 className="font-semibold text-slate-900 dark:text-white">Gmail sync</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             {user.paused ? 'Scanning is currently paused.' : 'Scanning runs every 15 minutes.'}
           </p>
           <div className="flex gap-3">
-            <button onClick={handlePauseToggle} className="border border-slate-300 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 transition">
+            <button onClick={handlePauseToggle} className="border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition">
               {user.paused ? 'Resume scanning' : 'Pause scanning'}
             </button>
-            <button onClick={handleDisconnect} className="border border-slate-300 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 transition">
+            <button onClick={handleDisconnect} className="border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition">
               Disconnect Gmail
             </button>
           </div>
         </section>
 
-        <section className="bg-white rounded-xl border border-red-200 p-5 space-y-3">
-          <h2 className="font-semibold text-red-700">Danger zone</h2>
-          <p className="text-sm text-slate-500">Permanently delete your account and all extracted tasks.</p>
+        <section className="bg-white dark:bg-slate-900 rounded-xl border border-red-200 dark:border-red-900/50 p-5 space-y-3">
+          <h2 className="font-semibold text-red-700 dark:text-red-400">Danger zone</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Permanently delete your account and all extracted tasks.</p>
           <button onClick={handleDeleteAll} className="bg-red-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition">
             Delete all data
           </button>
         </section>
 
-        <p className="text-center text-sm text-slate-400 pt-2">
+        <p className="text-center text-sm text-slate-400 dark:text-slate-500 pt-2">
           Having an issue?{' '}
-          <a href="mailto:arkabera2004@gmail.com" className="text-indigo-500 hover:underline">
+          <a href="mailto:arkabera2004@gmail.com" className="text-indigo-500 dark:text-indigo-400 hover:underline">
             arkabera2004@gmail.com
           </a>
         </p>

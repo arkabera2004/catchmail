@@ -1,23 +1,23 @@
 const CONFIDENCE_STYLES = {
-  high: 'bg-green-100 text-green-800',
-  medium: 'bg-yellow-100 text-yellow-800',
-  low: 'bg-slate-100 text-slate-600',
+  high: 'bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-400',
+  medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/15 dark:text-yellow-400',
+  low: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
 };
 
 export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete }) {
   const deadlineValue = task.deadline ? task.deadline.slice(0, 10) : '';
 
   return (
-    <div className="flex items-center gap-4 py-3.5 px-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition">
+    <div className="flex items-center gap-4 py-3.5 px-4 border-b border-slate-100 dark:border-slate-800 last:border-b-0 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
       <input
         type="checkbox"
         checked={task.status === 'done'}
         onChange={() => onToggleDone(task)}
-        className="h-5 w-5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+        className="h-5 w-5 rounded border-slate-300 dark:border-slate-600 dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500"
       />
 
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-slate-400' : 'text-slate-900'}`}>
+        <p className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
           {task.task_text}
         </p>
         <div className="flex items-center gap-2 mt-0.5">
@@ -25,12 +25,12 @@ export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete
             href={task.source_email_link}
             target="_blank"
             rel="noreferrer"
-            className="text-xs text-indigo-500 hover:underline"
+            className="text-xs text-indigo-500 dark:text-indigo-400 hover:underline"
           >
             View source email
           </a>
           {task.calendar_event_id && (
-            <span className="text-xs text-slate-400">&middot; on calendar</span>
+            <span className="text-xs text-slate-400 dark:text-slate-500">&middot; on calendar</span>
           )}
         </div>
       </div>
@@ -43,12 +43,12 @@ export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete
         type="date"
         value={deadlineValue}
         onChange={(e) => onDeadlineChange(task, e.target.value)}
-        className="text-sm border border-slate-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        className="text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 [color-scheme:light] dark:[color-scheme:dark]"
       />
 
       <button
         onClick={() => onDelete(task)}
-        className="text-slate-400 hover:text-red-500 text-sm transition"
+        className="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 text-sm transition"
         aria-label="Delete task"
       >
         Delete

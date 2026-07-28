@@ -14,19 +14,19 @@ function MailIcon(props) {
 
 export default function Contact() {
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors">
       <MarketingHeader />
 
       <main className="flex-1 max-w-xl mx-auto w-full px-6 py-16 text-center">
         <h1 className="text-4xl font-extrabold tracking-tight mb-4">Get in touch</h1>
-        <p className="text-slate-600 mb-10 leading-relaxed">
+        <p className="text-slate-600 dark:text-slate-400 mb-10 leading-relaxed">
           Bug reports, billing questions, feature ideas, or anything else — email goes
           straight to me, and I read every one.
         </p>
 
         <a
           href={`mailto:${SUPPORT_EMAIL}`}
-          className="inline-flex items-center gap-3 bg-slate-900 text-white px-6 py-3.5 rounded-xl font-semibold hover:bg-slate-800 transition"
+          className="inline-flex items-center gap-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-6 py-3.5 rounded-xl font-semibold hover:bg-slate-800 dark:hover:bg-slate-200 transition"
         >
           <MailIcon className="w-5 h-5" />
           {SUPPORT_EMAIL}

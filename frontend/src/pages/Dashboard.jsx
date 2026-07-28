@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Fuse from 'fuse.js';
 import { api } from '../lib/api.js';
 import TaskRow from '../components/TaskRow.jsx';
+import ThemeToggle from '../components/ThemeToggle.jsx';
 
 function CalendarIcon(props) {
   return (
@@ -184,14 +185,14 @@ export default function Dashboard() {
   const sortedFlatTasks = useMemo(() => sortTasks(statusFiltered, sortBy), [statusFiltered, sortBy]);
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-slate-500">Loading…</div>;
+    return <div className="min-h-screen dark:bg-slate-950 flex items-center justify-center text-slate-500 dark:text-slate-400">Loading…</div>;
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-4 text-slate-600">
+      <div className="min-h-screen dark:bg-slate-950 flex flex-col items-center justify-center gap-4 text-slate-600 dark:text-slate-400">
         <p>You need to connect Gmail first.</p>
-        <a href="/" className="text-indigo-600 underline">
+        <a href="/" className="text-indigo-600 dark:text-indigo-400 underline">
           Go to landing page
         </a>
       </div>
@@ -199,44 +200,45 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
-          <span className="text-lg font-bold text-slate-900 tracking-tight">CatchMail</span>
-          <div className="flex items-center gap-4 text-sm text-slate-500">
+          <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">CatchMail</span>
+          <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
             <span>{user?.email}</span>
-            <span className="px-2.5 py-1 rounded-full bg-slate-100 text-xs font-medium capitalize">{user?.plan} plan</span>
-            <Link to="/settings" className="hover:text-slate-900 transition">
+            <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-medium capitalize">{user?.plan} plan</span>
+            <Link to="/settings" className="hover:text-slate-900 dark:hover:text-white transition">
               Settings
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-8">
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-xl border border-slate-200 p-4">
-            <p className="text-2xl font-bold text-slate-900">{openCount}</p>
-            <p className="text-xs text-slate-500 mt-0.5">Open tasks</p>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+            <p className="text-2xl font-bold text-slate-900 dark:text-white">{openCount}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Open tasks</p>
           </div>
-          <div className="bg-white rounded-xl border border-slate-200 p-4">
-            <p className="text-2xl font-bold text-amber-600">{dueSoonCount}</p>
-            <p className="text-xs text-slate-500 mt-0.5">Due in 7 days</p>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{dueSoonCount}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Due in 7 days</p>
           </div>
-          <div className="bg-white rounded-xl border border-slate-200 p-4">
-            <p className="text-2xl font-bold text-emerald-600">{doneCount}</p>
-            <p className="text-xs text-slate-500 mt-0.5">Completed</p>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{doneCount}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Completed</p>
           </div>
         </div>
 
         <div className="relative mb-4">
-          <SearchIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <SearchIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search tasks, e.g. a project or sender name — finds related tasks even with typos"
-            className="w-full text-sm border border-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+            className="w-full text-sm border border-slate-200 dark:border-slate-700 rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
           />
         </div>
 
@@ -247,7 +249,9 @@ export default function Dashboard() {
                 key={f}
                 onClick={() => setFilter(f)}
                 className={`px-3 py-1.5 rounded-full capitalize transition ${
-                  filter === f ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:border-slate-300'
+                  filter === f
+                    ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
+                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
                 }`}
               >
                 {f}
@@ -258,7 +262,7 @@ export default function Dashboard() {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="ml-1 text-sm border border-slate-200 rounded-full pl-3 pr-8 py-1.5 bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="ml-1 text-sm border border-slate-200 dark:border-slate-700 rounded-full pl-3 pr-8 py-1.5 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               >
                 {SORT_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -280,26 +284,26 @@ export default function Dashboard() {
         </div>
 
         {syncMessage && (
-          <div className="mb-4 text-sm bg-indigo-50 text-indigo-700 px-4 py-2.5 rounded-lg animate-fade-in">
+          <div className="mb-4 text-sm bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 px-4 py-2.5 rounded-lg animate-fade-in">
             {syncMessage}
           </div>
         )}
 
         {trimmedSearch ? (
           searchGroups.length === 0 ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-14 text-center text-slate-400">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-14 text-center text-slate-400 dark:text-slate-500">
               No tasks match "{trimmedSearch}".
             </div>
           ) : (
             <div className="space-y-4">
               {searchGroups.map((group) => (
-                <div key={group.key} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                  <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
-                    <p className="text-sm font-semibold text-slate-800">{group.subject}</p>
-                    <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                <div key={group.key} className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+                  <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800">
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{group.subject}</p>
+                    <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                       {group.sender && <span>{group.sender}</span>}
                       {group.link && (
-                        <a href={group.link} target="_blank" rel="noreferrer" className="text-indigo-500 hover:underline">
+                        <a href={group.link} target="_blank" rel="noreferrer" className="text-indigo-500 dark:text-indigo-400 hover:underline">
                           View email
                         </a>
                       )}
@@ -322,9 +326,9 @@ export default function Dashboard() {
             </div>
           )
         ) : (
-          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
             {sortedFlatTasks.length === 0 ? (
-              <p className="text-center text-slate-400 py-14">No tasks here yet.</p>
+              <p className="text-center text-slate-400 dark:text-slate-500 py-14">No tasks here yet.</p>
             ) : (
               sortedFlatTasks.map((task) => (
                 <TaskRow

@@ -36,21 +36,21 @@ const FAQS = [
 
 function FaqItem({ item, open, onToggle }) {
   return (
-    <div className="border-b border-slate-100 py-5">
+    <div className="border-b border-slate-100 dark:border-slate-800 py-5">
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between text-left gap-4"
       >
-        <span className="font-semibold text-slate-900">{item.q}</span>
+        <span className="font-semibold text-slate-900 dark:text-white">{item.q}</span>
         <svg
           viewBox="0 0 24 24"
           fill="none"
-          className={`w-5 h-5 text-slate-400 flex-shrink-0 transition-transform ${open ? 'rotate-45' : ''}`}
+          className={`w-5 h-5 text-slate-400 dark:text-slate-500 flex-shrink-0 transition-transform ${open ? 'rotate-45' : ''}`}
         >
           <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
         </svg>
       </button>
-      {open && <p className="text-sm text-slate-600 leading-relaxed mt-3 pr-8">{item.a}</p>}
+      {open && <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mt-3 pr-8">{item.a}</p>}
     </div>
   );
 }
@@ -59,14 +59,14 @@ export default function Faq() {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors">
       <MarketingHeader />
 
       <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-16">
         <h1 className="text-4xl font-extrabold tracking-tight mb-3">Frequently asked questions</h1>
-        <p className="text-slate-500 mb-10">
+        <p className="text-slate-500 dark:text-slate-400 mb-10">
           Everything people usually ask before connecting an inbox. Missing something?{' '}
-          <Link to="/contact" className="text-indigo-500 hover:underline">
+          <Link to="/contact" className="text-indigo-500 dark:text-indigo-400 hover:underline">
             Ask directly
           </Link>
           .

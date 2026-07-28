@@ -3,13 +3,13 @@ import MarketingFooter from '../components/MarketingFooter.jsx';
 
 export default function About() {
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors">
       <MarketingHeader />
 
       <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-16">
         <h1 className="text-4xl font-extrabold tracking-tight mb-6">About CatchMail</h1>
 
-        <div className="space-y-5 text-slate-600 leading-relaxed">
+        <div className="space-y-5 text-slate-600 dark:text-slate-400 leading-relaxed">
           <p>
             Most task managers assume you'll type your tasks in yourself. In practice, the
             majority of what you actually need to do shows up as a throwaway line in an
@@ -24,13 +24,13 @@ export default function About() {
           <p>
             It's built on Gmail's read-only API (we never send mail on your behalf), Gemini
             for extraction, and Google Calendar for scheduling. Your data stays yours — see
-            the <a href="/privacy" className="text-indigo-500 hover:underline">privacy policy</a> for
+            the <a href="/privacy" className="text-indigo-500 dark:text-indigo-400 hover:underline">privacy policy</a> for
             specifics, and disconnect or delete everything at any time from Settings.
           </p>
           <p className="pt-2">
-            CatchMail is built and maintained by <strong className="text-slate-900">Arka Bera</strong>.
+            CatchMail is built and maintained by <strong className="text-slate-900 dark:text-white">Arka Bera</strong>.
             If something breaks or you have an idea for what's next, I'd genuinely like to hear
-            it — see the <a href="/contact" className="text-indigo-500 hover:underline">contact page</a>.
+            it — see the <a href="/contact" className="text-indigo-500 dark:text-indigo-400 hover:underline">contact page</a>.
           </p>
         </div>
       </main>
