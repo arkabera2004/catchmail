@@ -22,6 +22,8 @@ create table if not exists tasks (
   deadline timestamptz,
   source_email_id text not null,
   source_email_link text,
+  source_email_subject text,
+  source_email_sender text,
   confidence text check (confidence in ('high', 'medium', 'low')),
   status text not null default 'open' check (status in ('open', 'done')),
   calendar_event_id text,

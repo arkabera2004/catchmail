@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Fuse from 'fuse.js';
 import { api } from '../lib/api.js';
 import TaskRow from '../components/TaskRow.jsx';
 
@@ -12,6 +13,79 @@ function CalendarIcon(props) {
   );
 }
 
+function SearchIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" {...props}>
+      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.75" />
+      <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+const CONFIDENCE_RANK = { high: 0, medium: 1, low: 2 };
+
+const SORT_OPTIONS = [
+  { value: 'newest', label: 'Newest first' },
+  { value: 'oldest', label: 'Oldest first' },
+  { value: 'deadline_asc', label: 'Deadline (soonest)' },
+  { value: 'deadline_desc', label: 'Deadline (latest)' },
+  { value: 'confidence', label: 'Confidence' },
+  { value: 'az', label: 'A → Z' },
+];
+
+function sortTasks(tasks, sortBy) {
+  const sorted = [...tasks];
+  switch (sortBy) {
+    case 'oldest':
+      return sorted.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    case 'deadline_asc':
+      return sorted.sort((a, b) => {
+        if (!a.deadline && !b.deadline) return 0;
+        if (!a.deadline) return 1;
+        if (!b.deadline) return -1;
+        return new Date(a.deadline) - new Date(b.deadline);
+      });
+    case 'deadline_desc':
+      return sorted.sort((a, b) => {
+        if (!a.deadline && !b.deadline) return 0;
+        if (!a.deadline) return 1;
+        if (!b.deadline) return -1;
+        return new Date(b.deadline) - new Date(a.deadline);
+      });
+    case 'confidence':
+      return sorted.sort(
+        (a, b) => (CONFIDENCE_RANK[a.confidence] ?? 3) - (CONFIDENCE_RANK[b.confidence] ?? 3)
+      );
+    case 'az':
+      return sorted.sort((a, b) => a.task_text.localeCompare(b.task_text));
+    case 'newest':
+    default:
+      return sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  }
+}
+
+/** Groups fuzzy search results by source email so related tasks from the
+ * same thread surface together, in relevance order. */
+function groupBySourceEmail(matchedTasks) {
+  const groups = [];
+  const groupIndex = new Map();
+  for (const task of matchedTasks) {
+    const key = task.source_email_id || task.id;
+    if (!groupIndex.has(key)) {
+      groupIndex.set(key, groups.length);
+      groups.push({
+        key,
+        subject: task.source_email_subject || '(no subject)',
+        sender: task.source_email_sender || '',
+        link: task.source_email_link,
+        tasks: [],
+      });
+    }
+    groups[groupIndex.get(key)].tasks.push(task);
+  }
+  return groups;
+}
+
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [tasks, setTasks] = useState([]);
@@ -20,6 +94,8 @@ export default function Dashboard() {
   const [filter, setFilter] = useState('open');
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState(null);
+  const [sortBy, setSortBy] = useState('newest');
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     async function load() {
@@ -79,6 +155,34 @@ export default function Dashboard() {
     return tasks.filter((t) => t.status === 'open' && t.deadline && new Date(t.deadline).getTime() <= in7Days).length;
   }, [tasks]);
 
+  const statusFiltered = useMemo(
+    () => tasks.filter((t) => (filter === 'all' ? true : t.status === filter)),
+    [tasks, filter]
+  );
+
+  const fuse = useMemo(
+    () =>
+      new Fuse(statusFiltered, {
+        keys: [
+          { name: 'task_text', weight: 2 },
+          { name: 'source_email_subject', weight: 1.5 },
+          { name: 'source_email_sender', weight: 1 },
+        ],
+        threshold: 0.4, // tolerates typos like "wayam" -> "Vakyam"
+        ignoreLocation: true,
+      }),
+    [statusFiltered]
+  );
+
+  const trimmedSearch = search.trim();
+  const searchGroups = useMemo(() => {
+    if (!trimmedSearch) return null;
+    const matches = fuse.search(trimmedSearch).map((r) => r.item);
+    return groupBySourceEmail(matches);
+  }, [fuse, trimmedSearch]);
+
+  const sortedFlatTasks = useMemo(() => sortTasks(statusFiltered, sortBy), [statusFiltered, sortBy]);
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center text-slate-500">Loading…</div>;
   }
@@ -93,8 +197,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  const visibleTasks = tasks.filter((t) => (filter === 'all' ? true : t.status === filter));
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -127,8 +229,19 @@ export default function Dashboard() {
           </div>
         </div>
 
+        <div className="relative mb-4">
+          <SearchIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search tasks, e.g. a project or sender name — finds related tasks even with typos"
+            className="w-full text-sm border border-slate-200 rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+          />
+        </div>
+
         <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-          <div className="flex gap-2 text-sm">
+          <div className="flex items-center gap-2 text-sm flex-wrap">
             {['open', 'done', 'all'].map((f) => (
               <button
                 key={f}
@@ -140,6 +253,20 @@ export default function Dashboard() {
                 {f}
               </button>
             ))}
+
+            {!trimmedSearch && (
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="ml-1 text-sm border border-slate-200 rounded-full pl-3 pr-8 py-1.5 bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                {SORT_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    Sort: {opt.label}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <button
@@ -158,21 +285,59 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
-          {visibleTasks.length === 0 ? (
-            <p className="text-center text-slate-400 py-14">No tasks here yet.</p>
+        {trimmedSearch ? (
+          searchGroups.length === 0 ? (
+            <div className="bg-white rounded-xl border border-slate-200 p-14 text-center text-slate-400">
+              No tasks match "{trimmedSearch}".
+            </div>
           ) : (
-            visibleTasks.map((task) => (
-              <TaskRow
-                key={task.id}
-                task={task}
-                onToggleDone={toggleDone}
-                onDeadlineChange={changeDeadline}
-                onDelete={deleteTask}
-              />
-            ))
-          )}
-        </div>
+            <div className="space-y-4">
+              {searchGroups.map((group) => (
+                <div key={group.key} className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                  <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                    <p className="text-sm font-semibold text-slate-800">{group.subject}</p>
+                    <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                      {group.sender && <span>{group.sender}</span>}
+                      {group.link && (
+                        <a href={group.link} target="_blank" rel="noreferrer" className="text-indigo-500 hover:underline">
+                          View email
+                        </a>
+                      )}
+                      <span className="ml-auto font-medium">
+                        {group.tasks.length} task{group.tasks.length === 1 ? '' : 's'}
+                      </span>
+                    </div>
+                  </div>
+                  {group.tasks.map((task) => (
+                    <TaskRow
+                      key={task.id}
+                      task={task}
+                      onToggleDone={toggleDone}
+                      onDeadlineChange={changeDeadline}
+                      onDelete={deleteTask}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+          )
+        ) : (
+          <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+            {sortedFlatTasks.length === 0 ? (
+              <p className="text-center text-slate-400 py-14">No tasks here yet.</p>
+            ) : (
+              sortedFlatTasks.map((task) => (
+                <TaskRow
+                  key={task.id}
+                  task={task}
+                  onToggleDone={toggleDone}
+                  onDeadlineChange={changeDeadline}
+                  onDelete={deleteTask}
+                />
+              ))
+            )}
+          </div>
+        )}
       </main>
     </div>
   );

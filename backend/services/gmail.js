@@ -147,6 +147,8 @@ async function processMessage(user, parsed) {
     deadline: t.deadline || null,
     source_email_id: parsed.id,
     source_email_link: `https://mail.google.com/mail/u/0/#inbox/${parsed.threadId}`,
+    source_email_subject: parsed.subject,
+    source_email_sender: parsed.from,
     confidence: t.confidence,
     status: 'open',
   }));
