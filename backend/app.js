@@ -18,6 +18,12 @@ export function createApp() {
     })
   );
 
+  const isProduction = process.env.NODE_ENV === 'production';
+  // Frontend and backend live on different domains in production (Vercel +
+  // Railway), so the session cookie needs SameSite=None to survive the
+  // cross-site fetch — which in turn requires Secure, hence the split from dev.
+  if (isProduction) app.set('trust proxy', 1);
+
   app.use(
     session({
       secret: process.env.SESSION_SECRET || 'dev-only-insecure-secret',
@@ -25,8 +31,8 @@ export function createApp() {
       saveUninitialized: false,
       cookie: {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: isProduction,
+        sameSite: isProduction ? 'none' : 'lax',
         maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
       },
     })
