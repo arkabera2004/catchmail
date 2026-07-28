@@ -131,3 +131,8 @@ Before any email is sent to Gemini, `backend/services/gmail.js`'s
 `shouldSkipMessage` filters out no-reply senders, newsletters (via the
 `List-Unsubscribe` header), and calendar invites — these never incur a
 Gemini API call.
+
+## License
+
+All rights reserved. This code is proprietary — see [LICENSE](./LICENSE) for
+terms. It is not open source; viewing is permitted, reuse is not.
