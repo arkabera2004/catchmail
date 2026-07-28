@@ -9,6 +9,70 @@ const TRUST_BADGES = [
   'Delete all data anytime',
 ];
 
+const PREVIEW_TASKS = [
+  { text: 'Send the Q3 report to finance', confidence: 'high', done: false },
+  { text: 'Review the draft deck before Friday', confidence: 'high', done: false },
+  { text: 'Schedule a call with the design team', confidence: 'medium', done: true },
+];
+
+function ProductPreview() {
+  return (
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl shadow-slate-900/5 dark:shadow-none overflow-hidden">
+      <div className="flex items-center gap-1.5 px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/40">
+        <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+        <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+        <span className="ml-3 text-xs text-slate-400 dark:text-slate-500">app.catchmail.com/dashboard</span>
+      </div>
+      <div className="p-6 sm:p-8">
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          {[
+            { n: 12, label: 'Open tasks', color: 'text-slate-900 dark:text-white' },
+            { n: 3, label: 'Due in 7 days', color: 'text-amber-600 dark:text-amber-400' },
+            { n: 24, label: 'Completed', color: 'text-emerald-600 dark:text-emerald-400' },
+          ].map((s) => (
+            <div key={s.label} className="rounded-xl border border-slate-100 dark:border-slate-800 p-3 text-left">
+              <p className={`text-xl font-bold ${s.color}`}>{s.n}</p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{s.label}</p>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-xl border border-slate-100 dark:border-slate-800 divide-y divide-slate-100 dark:divide-slate-800 text-left">
+          {PREVIEW_TASKS.map((t) => (
+            <div key={t.text} className="flex items-center gap-3 px-4 py-3">
+              <span
+                className={`w-4.5 h-4.5 rounded border flex items-center justify-center flex-shrink-0 ${
+                  t.done
+                    ? 'bg-indigo-600 border-indigo-600'
+                    : 'border-slate-300 dark:border-slate-600'
+                }`}
+              >
+                {t.done && (
+                  <svg viewBox="0 0 24 24" fill="none" className="w-3 h-3 text-white">
+                    <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </span>
+              <span className={`text-sm flex-1 ${t.done ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-200'}`}>
+                {t.text}
+              </span>
+              <span
+                className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${
+                  t.confidence === 'high'
+                    ? 'bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-400'
+                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/15 dark:text-yellow-400'
+                }`}
+              >
+                {t.confidence}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const STEPS = [
   {
     step: '1',
@@ -118,6 +182,10 @@ export default function Landing() {
           Free forever for light use — see <Link to="/pricing" className="text-indigo-500 dark:text-indigo-400 hover:underline">pricing</Link>.
         </p>
       </main>
+
+      <section className="max-w-4xl mx-auto w-full px-6 pb-24">
+        <ProductPreview />
+      </section>
 
       <section className="max-w-5xl mx-auto w-full px-6 pb-24 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {FEATURES.map((f) => (

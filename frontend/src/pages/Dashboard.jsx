@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import Fuse from 'fuse.js';
 import { api } from '../lib/api.js';
 import TaskRow from '../components/TaskRow.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
+import AccountMenu from '../components/AccountMenu.jsx';
 
 function CalendarIcon(props) {
   return (
@@ -19,6 +19,35 @@ function SearchIcon(props) {
     <svg viewBox="0 0 24 24" fill="none" {...props}>
       <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.75" />
       <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function ListIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" {...props}>
+      <path d="M8 6h13M8 12h13M8 18h13" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
+      <circle cx="3.5" cy="6" r="1.5" fill="currentColor" />
+      <circle cx="3.5" cy="12" r="1.5" fill="currentColor" />
+      <circle cx="3.5" cy="18" r="1.5" fill="currentColor" />
+    </svg>
+  );
+}
+
+function ClockIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" {...props}>
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.75" />
+      <path d="M12 7v5l3.5 2" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CheckCircleIcon(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" {...props}>
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.75" />
+      <path d="M8 12.5l2.5 2.5L16 9.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -204,30 +233,42 @@ export default function Dashboard() {
       <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
           <span className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">CatchMail</span>
-          <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
-            <span>{user?.email}</span>
-            <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-medium capitalize">{user?.plan} plan</span>
-            <Link to="/settings" className="hover:text-slate-900 dark:hover:text-white transition">
-              Settings
-            </Link>
+          <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+            <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-medium capitalize hidden sm:inline">{user?.plan} plan</span>
             <ThemeToggle />
+            <AccountMenu user={user} />
           </div>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-6 py-8">
         <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">{openCount}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Open tasks</p>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 flex-shrink-0">
+              <ListIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-slate-900 dark:text-white leading-none">{openCount}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Open tasks</p>
+            </div>
           </div>
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
-            <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{dueSoonCount}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Due in 7 days</p>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 flex-shrink-0">
+              <ClockIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 leading-none">{dueSoonCount}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Due in 7 days</p>
+            </div>
           </div>
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{doneCount}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Completed</p>
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0">
+              <CheckCircleIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 leading-none">{doneCount}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Completed</p>
+            </div>
           </div>
         </div>
 

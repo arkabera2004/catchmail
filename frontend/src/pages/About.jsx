@@ -7,6 +7,16 @@ export default function About() {
       <MarketingHeader />
 
       <main className="flex-1 max-w-2xl mx-auto w-full px-6 py-16">
+        <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6">
+          <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
+            <path
+              d="M12 21c-4.5-3-8-6.5-8-10.5A5.5 5.5 0 0112 6a5.5 5.5 0 018 4.5c0 4-3.5 7.5-8 10.5z"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
         <h1 className="text-4xl font-extrabold tracking-tight mb-6">About CatchMail</h1>
 
         <div className="space-y-5 text-slate-600 dark:text-slate-400 leading-relaxed">

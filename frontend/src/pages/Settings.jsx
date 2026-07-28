@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import ThemeToggle from '../components/ThemeToggle.jsx';
+import AccountMenu from '../components/AccountMenu.jsx';
 
 function loadRazorpayScript() {
   return new Promise((resolve, reject) => {
@@ -83,11 +84,12 @@ export default function Settings() {
           <Link to="/dashboard" className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
             CatchMail
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link to="/dashboard" className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
               Back to dashboard
             </Link>
             <ThemeToggle />
+            <AccountMenu user={user} />
           </div>
         </div>
       </header>
@@ -101,8 +103,20 @@ export default function Settings() {
 
         <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-3">
           <h2 className="font-semibold text-slate-900 dark:text-white">Account</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">{user.email}</p>
-          <p className="text-sm text-slate-500 dark:text-slate-400 capitalize">Plan: {user.plan}</p>
+          <div className="flex items-center gap-3">
+            {user.picture ? (
+              <img src={user.picture} alt={user.name || user.email} className="w-12 h-12 rounded-full object-cover" />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-lg">
+                {(user.name || user.email).charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div>
+              {user.name && <p className="text-sm font-medium text-slate-900 dark:text-white">{user.name}</p>}
+              <p className="text-sm text-slate-500 dark:text-slate-400">{user.email}</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 capitalize">{user.plan} plan</p>
+            </div>
+          </div>
           {user.plan === 'free' && (
             <button onClick={handleUpgrade} className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm px-4 py-2 rounded-lg font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition">
               Upgrade to Pro

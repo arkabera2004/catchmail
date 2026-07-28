@@ -18,7 +18,10 @@ router.get('/google', (req, res) => {
   const oauth2Client = getOAuthClient();
   const url = oauth2Client.generateAuthUrl({
     access_type: 'offline',
-    prompt: 'consent', // ensures a refresh_token is returned even on repeat connects
+    // "select_account" always shows Google's account chooser (lets a user pick a
+    // different Google account — this is what powers "Switch account" in the app);
+    // "consent" ensures a refresh_token is returned even on repeat connects.
+    prompt: 'select_account consent',
     scope: SCOPES,
   });
   res.redirect(url);
@@ -52,7 +55,11 @@ router.get('/google/callback', async (req, res) => {
       .eq('email', googleUser.email)
       .maybeSingle();
 
-    const updates = { email: googleUser.email };
+    const updates = {
+      email: googleUser.email,
+      name: googleUser.name || null,
+      picture: googleUser.picture || null,
+    };
     if (tokens.refresh_token) {
       updates.google_refresh_token_enc = encrypt(tokens.refresh_token);
     }
@@ -103,7 +110,7 @@ router.get('/me', async (req, res) => {
   }
   const { data: user, error } = await supabase
     .from('users')
-    .select('id, email, plan, paused, created_at')
+    .select('id, email, name, picture, plan, paused, created_at')
     .eq('id', req.session.userId)
     .maybeSingle();
   if (error) return res.status(500).json({ error: error.message });
