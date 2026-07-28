@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import MarketingHeader from '../components/MarketingHeader.jsx';
 import MarketingFooter from '../components/MarketingFooter.jsx';
@@ -42,12 +43,14 @@ const PLANS = [
       'Priority email support',
     ],
     cta: 'Upgrade to Pro',
-    href: '/settings',
+    href: null,
     highlight: true,
   },
 ];
 
 export default function Pricing() {
+  const [comingSoon, setComingSoon] = useState(false);
+
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col transition-colors">
       <MarketingHeader />
@@ -90,7 +93,25 @@ export default function Pricing() {
                 ))}
               </ul>
 
-              {plan.href.startsWith('/') ? (
+              {plan.href === null ? (
+                <>
+                  <button
+                    onClick={() => setComingSoon(true)}
+                    className="block text-center w-full font-semibold py-3 rounded-xl transition bg-white text-slate-900 hover:bg-slate-100"
+                  >
+                    {plan.cta}
+                  </button>
+                  {comingSoon && (
+                    <p className="text-center text-xs text-slate-300 mt-3 animate-fade-in">
+                      Pro billing is coming soon — we're finishing it up. Have questions?{' '}
+                      <Link to="/contact" className="underline hover:text-white">
+                        Get in touch
+                      </Link>
+                      .
+                    </p>
+                  )}
+                </>
+              ) : plan.href.startsWith('/') ? (
                 <Link
                   to={plan.href}
                   className={`block text-center w-full font-semibold py-3 rounded-xl transition ${

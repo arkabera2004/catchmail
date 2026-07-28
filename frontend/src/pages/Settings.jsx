@@ -4,17 +4,6 @@ import { api } from '../lib/api.js';
 import ThemeToggle from '../components/ThemeToggle.jsx';
 import AccountMenu from '../components/AccountMenu.jsx';
 
-function loadRazorpayScript() {
-  return new Promise((resolve, reject) => {
-    if (window.Razorpay) return resolve();
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.onload = resolve;
-    script.onerror = reject;
-    document.body.appendChild(script);
-  });
-}
-
 export default function Settings() {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState('');
@@ -51,22 +40,8 @@ export default function Settings() {
     navigate('/');
   }
 
-  async function handleUpgrade() {
-    try {
-      await loadRazorpayScript();
-      const { subscriptionId, keyId } = await api.checkout();
-      const rzp = new window.Razorpay({
-        key: keyId,
-        subscription_id: subscriptionId,
-        name: 'CatchMail',
-        description: 'CatchMail Pro — unlimited task extraction',
-        handler: () => setMessage('Payment successful — your plan will update once Razorpay confirms the subscription.'),
-        theme: { color: '#0f172a' },
-      });
-      rzp.open();
-    } catch (err) {
-      setMessage(`Upgrade failed: ${err.message}`);
-    }
+  function handleUpgrade() {
+    setMessage("Pro billing is coming soon — we're finishing it up. We'll let you know the moment it's ready.");
   }
 
   if (!user) {
