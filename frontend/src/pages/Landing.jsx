@@ -146,9 +146,6 @@ export default function Landing() {
       <MarketingHeader />
 
       <main className="max-w-3xl mx-auto w-full px-6 pt-16 pb-24 text-center flex flex-col items-center gap-8 animate-fade-in">
-        <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 px-3 py-1 rounded-full">
-          Powered by Gemini
-        </span>
         <h1 className="text-4xl sm:text-6xl font-extrabold leading-[1.05] tracking-tight">
           Never miss a task
           <br />
