@@ -40,10 +40,6 @@ export default function Settings() {
     navigate('/');
   }
 
-  function handleUpgrade() {
-    setMessage("Pro billing is coming soon — we're finishing it up. We'll let you know the moment it's ready.");
-  }
-
   if (!user) {
     return (
       <div className="min-h-screen dark:bg-slate-950 flex items-center justify-center text-slate-500 dark:text-slate-400">
@@ -93,9 +89,12 @@ export default function Settings() {
             </div>
           </div>
           {user.plan === 'free' && (
-            <button onClick={handleUpgrade} className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm px-4 py-2 rounded-lg font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition">
+            <Link
+              to="/coming-soon"
+              className="inline-block bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm px-4 py-2 rounded-lg font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition"
+            >
               Upgrade to Pro
-            </button>
+            </Link>
           )}
         </section>
 

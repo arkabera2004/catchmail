@@ -8,6 +8,7 @@ import Contact from './pages/Contact.jsx';
 import Privacy from './pages/Privacy.jsx';
 import Terms from './pages/Terms.jsx';
 import Faq from './pages/Faq.jsx';
+import ComingSoon from './pages/ComingSoon.jsx';
 import NotFound from './pages/NotFound.jsx';
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/faq" element={<Faq />} />
+      <Route path="/coming-soon" element={<ComingSoon />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
