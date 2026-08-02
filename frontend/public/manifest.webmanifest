@@ -1,0 +1,9 @@
+{
+  "name": "CatchMail",
+  "short_name": "CatchMail",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#4338ca",
+  "icons": []
+}
