@@ -37,16 +37,35 @@ function buildEvent(task) {
   return event;
 }
 
+/** Returns every event in `existingEvents` whose time range overlaps
+ * [start, end). All-day events (a "date" instead of "dateTime") are ignored
+ * — they aren't a scheduling conflict in the sense we care about here.
+ * `excludeId` skips an event (e.g. the one just created for this same task)
+ * so it never conflicts with itself. */
+export function findOverlaps(existingEvents, start, end, excludeId) {
+  const startMs = new Date(start).getTime();
+  const endMs = new Date(end).getTime();
+  return existingEvents.filter((event) => {
+    if (event.id === excludeId) return false;
+    if (!event.start?.dateTime || !event.end?.dateTime) return false;
+    const eventStart = new Date(event.start.dateTime).getTime();
+    const eventEnd = new Date(event.end.dateTime).getTime();
+    return eventStart < endMs && eventEnd > startMs;
+  });
+}
+
 /**
  * Creates a Google Calendar event for every open task that doesn't already
  * have one (tracked via tasks.calendar_event_id). Returns how many were
- * created vs. already synced.
+ * created vs. already synced, plus any scheduling conflicts detected for
+ * timed (non all-day) events.
  */
 export async function syncTasksToCalendar(user, tasks) {
   const calendar = await getAuthedCalendarClient(user);
 
   let created = 0;
   let skipped = 0;
+  const conflicts = [];
 
   for (const task of tasks) {
     if (task.calendar_event_id) {
@@ -54,9 +73,28 @@ export async function syncTasksToCalendar(user, tasks) {
       continue;
     }
 
+    const event = buildEvent(task);
+
+    if (event.start.dateTime) {
+      const { data: existing } = await calendar.events.list({
+        calendarId: 'primary',
+        timeMin: event.start.dateTime,
+        timeMax: event.end.dateTime,
+        singleEvents: true,
+      });
+      const overlaps = findOverlaps(existing.items || [], event.start.dateTime, event.end.dateTime);
+      if (overlaps.length > 0) {
+        conflicts.push({
+          task_id: task.id,
+          task_text: task.task_text,
+          conflictsWith: overlaps.map((e) => e.summary || '(untitled event)'),
+        });
+      }
+    }
+
     const { data: createdEvent } = await calendar.events.insert({
       calendarId: 'primary',
-      requestBody: buildEvent(task),
+      requestBody: event,
     });
 
     const { error } = await supabase
@@ -68,5 +106,5 @@ export async function syncTasksToCalendar(user, tasks) {
     created += 1;
   }
 
-  return { created, skipped };
+  return { created, skipped, conflicts };
 }

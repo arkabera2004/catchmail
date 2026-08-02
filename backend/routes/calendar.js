@@ -26,7 +26,7 @@ router.post('/sync', async (req, res) => {
     if (tasksError) return res.status(500).json({ error: tasksError.message });
 
     if (!tasks || tasks.length === 0) {
-      return res.json({ created: 0, skipped: 0 });
+      return res.json({ created: 0, skipped: 0, conflicts: [] });
     }
 
     const result = await syncTasksToCalendar(user, tasks);

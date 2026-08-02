@@ -172,11 +172,17 @@ export default function Dashboard() {
     setSyncMessage(null);
     try {
       const result = await api.syncCalendar();
-      setSyncMessage(
+      const addedMessage =
         result.created === 0
           ? 'Everything is already on your calendar.'
-          : `Added ${result.created} event${result.created === 1 ? '' : 's'} to Google Calendar.`
-      );
+          : `Added ${result.created} event${result.created === 1 ? '' : 's'} to Google Calendar.`;
+      const conflictMessage =
+        result.conflicts?.length > 0
+          ? ` ⚠️ ${result.conflicts.length} scheduling conflict${result.conflicts.length === 1 ? '' : 's'}: ${result.conflicts
+              .map((c) => `"${c.task_text}" overlaps ${c.conflictsWith.join(', ')}`)
+              .join('; ')}`
+          : '';
+      setSyncMessage(addedMessage + conflictMessage);
       const { tasks: refreshed } = await api.getTasks();
       setTasks(refreshed);
     } catch (err) {
