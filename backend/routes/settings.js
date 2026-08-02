@@ -4,6 +4,7 @@ import { requireAuth } from '../middleware/requireAuth.js';
 import { decrypt } from '../lib/crypto.js';
 import { revokeGoogleToken } from '../services/gmail.js';
 import { validatePushSubscription } from '../services/push.js';
+import { isValidE164, sendVerificationCode, checkVerificationCode } from '../services/sms.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -69,6 +70,46 @@ router.post('/push/unsubscribe', async (req, res) => {
     .eq('user_id', req.session.userId);
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });
+});
+
+async function requireProPlan(req, res, next) {
+  const { data: user, error } = await supabase.from('users').select('plan').eq('id', req.session.userId).maybeSingle();
+  if (error) return res.status(500).json({ error: error.message });
+  if (user?.plan !== 'paid') return res.status(403).json({ error: 'SMS reminders are a Pro feature' });
+  next();
+}
+
+router.post('/phone/send-code', requireProPlan, async (req, res) => {
+  const { phone_number } = req.body;
+  if (!isValidE164(phone_number)) {
+    return res.status(400).json({ error: 'phone_number must be in E.164 format, e.g. +15551234567' });
+  }
+  try {
+    await sendVerificationCode(phone_number);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/phone/verify', requireProPlan, async (req, res) => {
+  const { phone_number, code } = req.body;
+  if (!isValidE164(phone_number) || !code) {
+    return res.status(400).json({ error: 'phone_number and code are required' });
+  }
+  try {
+    const approved = await checkVerificationCode(phone_number, code);
+    if (!approved) return res.status(400).json({ error: 'Invalid or expired code' });
+
+    const { error } = await supabase
+      .from('users')
+      .update({ phone_number, phone_verified: true })
+      .eq('id', req.session.userId);
+    if (error) return res.status(500).json({ error: error.message });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.post('/pause', async (req, res) => {
