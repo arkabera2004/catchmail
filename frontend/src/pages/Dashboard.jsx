@@ -3,6 +3,7 @@ import Fuse from 'fuse.js';
 import { api } from '../lib/api.js';
 import TaskRow from '../components/TaskRow.jsx';
 import MeetingsRail from '../components/MeetingsRail.jsx';
+import NextUpCard from '../components/NextUpCard.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
 import AccountMenu from '../components/AccountMenu.jsx';
 
@@ -127,6 +128,7 @@ export default function Dashboard() {
   const [syncMessage, setSyncMessage] = useState(null);
   const [sortBy, setSortBy] = useState('newest');
   const [search, setSearch] = useState('');
+  const [mobileTab, setMobileTab] = useState('meetings');
 
   useEffect(() => {
     async function load() {
@@ -195,6 +197,7 @@ export default function Dashboard() {
     () => tasks.filter((t) => t.type === 'meeting' && t.status === 'open'),
     [tasks]
   );
+  const mobileLayout = user?.dashboard_mobile_layout || 'stacked';
   const taskOnlyFiltered = useMemo(
     () => statusFiltered.filter((t) => t.type !== 'meeting'),
     [statusFiltered]
@@ -282,11 +285,55 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {mobileLayout === 'tabs' && (
+          <div className="md:hidden flex gap-2 mb-3">
+            <button
+              onClick={() => setMobileTab('meetings')}
+              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                mobileTab === 'meetings'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+              }`}
+            >
+              Meetings{meetings.length > 0 ? ` (${meetings.length})` : ''}
+            </button>
+            <button
+              onClick={() => setMobileTab('tasks')}
+              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                mobileTab === 'tasks'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
+                  : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+              }`}
+            >
+              Tasks
+            </button>
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row gap-6">
-        <div className="md:w-64 md:flex-shrink-0">
-          <MeetingsRail meetings={meetings} />
+        <div
+          className={`md:block md:w-64 md:flex-shrink-0 ${
+            mobileLayout === 'tabs' ? (mobileTab === 'meetings' ? 'block' : 'hidden') : 'block'
+          }`}
+        >
+          {mobileLayout === 'next_up' ? (
+            <>
+              <div className="md:hidden">
+                <NextUpCard meetings={meetings} />
+              </div>
+              <div className="hidden md:block">
+                <MeetingsRail meetings={meetings} />
+              </div>
+            </>
+          ) : (
+            <MeetingsRail meetings={meetings} />
+          )}
         </div>
-        <div className="flex-1 min-w-0">
+        <div
+          className={`flex-1 min-w-0 ${
+            mobileLayout === 'tabs' && mobileTab === 'meetings' ? 'hidden md:block' : 'block'
+          }`}
+        >
 
         <div className="relative mb-4">
           <SearchIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
