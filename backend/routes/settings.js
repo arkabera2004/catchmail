@@ -7,6 +7,44 @@ import { revokeGoogleToken } from '../services/gmail.js';
 const router = Router();
 router.use(requireAuth);
 
+const MOBILE_LAYOUTS = ['tabs', 'stacked', 'next_up'];
+const REMINDER_LEAD_OPTIONS = [10, 30, 60];
+
+export function validatePreferencesUpdate(body) {
+  const { dashboard_mobile_layout, reminder_lead_minutes } = body;
+  const updates = {};
+  if (dashboard_mobile_layout !== undefined) {
+    if (!MOBILE_LAYOUTS.includes(dashboard_mobile_layout)) {
+      return { error: `dashboard_mobile_layout must be one of: ${MOBILE_LAYOUTS.join(', ')}` };
+    }
+    updates.dashboard_mobile_layout = dashboard_mobile_layout;
+  }
+  if (reminder_lead_minutes !== undefined) {
+    if (!REMINDER_LEAD_OPTIONS.includes(reminder_lead_minutes)) {
+      return { error: `reminder_lead_minutes must be one of: ${REMINDER_LEAD_OPTIONS.join(', ')}` };
+    }
+    updates.reminder_lead_minutes = reminder_lead_minutes;
+  }
+  if (Object.keys(updates).length === 0) {
+    return { error: 'No valid fields to update' };
+  }
+  return { updates };
+}
+
+router.patch('/preferences', async (req, res) => {
+  const { updates, error: validationError } = validatePreferencesUpdate(req.body);
+  if (validationError) return res.status(400).json({ error: validationError });
+
+  const { data, error } = await supabase
+    .from('users')
+    .update(updates)
+    .eq('id', req.session.userId)
+    .select()
+    .maybeSingle();
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ user: data });
+});
+
 router.post('/pause', async (req, res) => {
   const { error } = await supabase.from('users').update({ paused: true }).eq('id', req.session.userId);
   if (error) return res.status(500).json({ error: error.message });
