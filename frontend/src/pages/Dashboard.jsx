@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Fuse from 'fuse.js';
 import { api } from '../lib/api.js';
 import TaskRow from '../components/TaskRow.jsx';
+import MeetingsRail from '../components/MeetingsRail.jsx';
 import ThemeToggle from '../components/ThemeToggle.jsx';
 import AccountMenu from '../components/AccountMenu.jsx';
 
@@ -190,9 +191,18 @@ export default function Dashboard() {
     [tasks, filter]
   );
 
+  const meetings = useMemo(
+    () => tasks.filter((t) => t.type === 'meeting' && t.status === 'open'),
+    [tasks]
+  );
+  const taskOnlyFiltered = useMemo(
+    () => statusFiltered.filter((t) => t.type !== 'meeting'),
+    [statusFiltered]
+  );
+
   const fuse = useMemo(
     () =>
-      new Fuse(statusFiltered, {
+      new Fuse(taskOnlyFiltered, {
         keys: [
           { name: 'task_text', weight: 2 },
           { name: 'source_email_subject', weight: 1.5 },
@@ -211,7 +221,7 @@ export default function Dashboard() {
     return groupBySourceEmail(matches);
   }, [fuse, trimmedSearch]);
 
-  const sortedFlatTasks = useMemo(() => sortTasks(statusFiltered, sortBy), [statusFiltered, sortBy]);
+  const sortedFlatTasks = useMemo(() => sortTasks(taskOnlyFiltered, sortBy), [taskOnlyFiltered, sortBy]);
 
   if (loading) {
     return <div className="min-h-screen dark:bg-slate-950 flex items-center justify-center text-slate-500 dark:text-slate-400">Loading…</div>;
@@ -241,7 +251,7 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-8">
+      <main className="max-w-5xl mx-auto px-6 py-8">
         <div className="grid grid-cols-3 gap-4 mb-6">
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-4 flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 flex-shrink-0">
@@ -271,6 +281,12 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
+
+        <div className="flex flex-col md:flex-row gap-6">
+        <div className="md:w-64 md:flex-shrink-0">
+          <MeetingsRail meetings={meetings} />
+        </div>
+        <div className="flex-1 min-w-0">
 
         <div className="relative mb-4">
           <SearchIcon className="w-4 h-4 text-slate-400 dark:text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -383,6 +399,8 @@ export default function Dashboard() {
             )}
           </div>
         )}
+        </div>
+        </div>
       </main>
     </div>
   );

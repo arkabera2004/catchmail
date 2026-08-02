@@ -28,4 +28,9 @@ export const api = {
   deleteAllData: () => request('/api/settings/delete-all', { method: 'POST' }),
   checkout: () => request('/api/billing/checkout', { method: 'POST' }),
   syncCalendar: () => request('/api/calendar/sync', { method: 'POST' }),
+  updatePreferences: (updates) => request('/api/settings/preferences', { method: 'PATCH', body: JSON.stringify(updates) }),
+  subscribePush: (subscription) => request('/api/settings/push/subscribe', { method: 'POST', body: JSON.stringify(subscription) }),
+  unsubscribePush: (endpoint) => request('/api/settings/push/unsubscribe', { method: 'POST', body: JSON.stringify({ endpoint }) }),
+  sendPhoneCode: (phone_number) => request('/api/settings/phone/send-code', { method: 'POST', body: JSON.stringify({ phone_number }) }),
+  verifyPhoneCode: (phone_number, code) => request('/api/settings/phone/verify', { method: 'POST', body: JSON.stringify({ phone_number, code }) }),
 };
