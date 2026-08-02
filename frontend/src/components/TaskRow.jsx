@@ -12,6 +12,19 @@ function snoozeOffsetDate(days) {
   return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 }
 
+/** Builds a mailto: link pre-filled to delegate a task — subject/body only,
+ * since composing a true Gmail "Forward" (with the original message quoted)
+ * would need the Gmail compose OAuth scope, which this app doesn't request. */
+export function buildForwardMailto(task) {
+  const subject = `Fwd: ${task.source_email_subject || task.task_text}`;
+  const bodyLines = [
+    `Can you take care of this: ${task.task_text}`,
+    '',
+    task.source_email_link ? `Original email: ${task.source_email_link}` : null,
+  ].filter(Boolean);
+  return `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyLines.join('\n'))}`;
+}
+
 export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete, onFeedback, onSnooze }) {
   const deadlineValue = task.deadline ? task.deadline.slice(0, 10) : '';
 
@@ -41,6 +54,12 @@ export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete
           {task.calendar_event_id && (
             <span className="text-xs text-slate-400 dark:text-slate-500">&middot; on calendar</span>
           )}
+          <a
+            href={buildForwardMailto(task)}
+            className="text-xs text-slate-400 dark:text-slate-500 hover:text-indigo-500 dark:hover:text-indigo-400"
+          >
+            &middot; Forward
+          </a>
         </div>
       </div>
 
