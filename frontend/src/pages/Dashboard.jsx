@@ -162,6 +162,11 @@ export default function Dashboard() {
     setTasks((prev) => prev.filter((t) => t.id !== task.id));
   }
 
+  async function giveFeedback(task, feedback) {
+    const updated = await api.updateTask(task.id, { feedback });
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? updated.task : t)));
+  }
+
   async function handleSyncCalendar() {
     setSyncing(true);
     setSyncMessage(null);
@@ -423,6 +428,7 @@ export default function Dashboard() {
                       onToggleDone={toggleDone}
                       onDeadlineChange={changeDeadline}
                       onDelete={deleteTask}
+                      onFeedback={giveFeedback}
                     />
                   ))}
                 </div>
@@ -440,6 +446,7 @@ export default function Dashboard() {
                   task={task}
                   onToggleDone={toggleDone}
                   onDeadlineChange={changeDeadline}
+                  onFeedback={giveFeedback}
                   onDelete={deleteTask}
                 />
               ))

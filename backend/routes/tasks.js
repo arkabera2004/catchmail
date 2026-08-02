@@ -15,19 +15,31 @@ router.get('/', async (req, res) => {
   res.json({ tasks: data });
 });
 
-router.patch('/:id', async (req, res) => {
-  const { deadline, status } = req.body;
+export function buildTaskUpdates(body) {
+  const { deadline, status, feedback } = body;
   const updates = {};
   if (deadline !== undefined) updates.deadline = deadline;
   if (status !== undefined) {
     if (!['open', 'done'].includes(status)) {
-      return res.status(400).json({ error: 'status must be "open" or "done"' });
+      return { error: 'status must be "open" or "done"' };
     }
     updates.status = status;
   }
-  if (Object.keys(updates).length === 0) {
-    return res.status(400).json({ error: 'No valid fields to update' });
+  if (feedback !== undefined) {
+    if (feedback !== null && !['up', 'down'].includes(feedback)) {
+      return { error: 'feedback must be "up", "down", or null' };
+    }
+    updates.feedback = feedback;
   }
+  if (Object.keys(updates).length === 0) {
+    return { error: 'No valid fields to update' };
+  }
+  return { updates };
+}
+
+router.patch('/:id', async (req, res) => {
+  const { updates, error: validationError } = buildTaskUpdates(req.body);
+  if (validationError) return res.status(400).json({ error: validationError });
 
   const { data, error } = await supabase
     .from('tasks')

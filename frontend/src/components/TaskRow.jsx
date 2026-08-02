@@ -4,7 +4,7 @@ const CONFIDENCE_STYLES = {
   low: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
 };
 
-export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete }) {
+export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete, onFeedback }) {
   const deadlineValue = task.deadline ? task.deadline.slice(0, 10) : '';
 
   return (
@@ -38,6 +38,25 @@ export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete
       <span className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${CONFIDENCE_STYLES[task.confidence] || CONFIDENCE_STYLES.low}`}>
         {task.confidence || 'low'}
       </span>
+
+      {onFeedback && (
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onFeedback(task, task.feedback === 'up' ? null : 'up')}
+            aria-label="Extraction was correct"
+            className={`text-sm transition ${task.feedback === 'up' ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600 hover:text-emerald-500'}`}
+          >
+            👍
+          </button>
+          <button
+            onClick={() => onFeedback(task, task.feedback === 'down' ? null : 'down')}
+            aria-label="Extraction was wrong"
+            className={`text-sm transition ${task.feedback === 'down' ? 'text-red-500' : 'text-slate-300 dark:text-slate-600 hover:text-red-500'}`}
+          >
+            👎
+          </button>
+        </div>
+      )}
 
       <input
         type="date"
