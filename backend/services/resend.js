@@ -68,3 +68,76 @@ export async function sendDigestEmail(user, tasks) {
     html: buildDigestHtml(tasks),
   });
 }
+
+function formatWeeklyDeadline(deadline) {
+  if (!deadline) return 'No deadline';
+  return new Date(deadline).toLocaleString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
+function buildWeeklySummaryHtml(meetings, tasks) {
+  const meetingRows = meetings
+    .map(
+      (m) => `
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #eee;">📅 ${m.task_text}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #eee;">${formatWeeklyDeadline(m.deadline)}</td>
+      </tr>`
+    )
+    .join('');
+
+  const taskRows = tasks
+    .map(
+      (t) => `
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #eee;">${t.task_text}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #eee;">${formatWeeklyDeadline(t.deadline)}</td>
+      </tr>`
+    )
+    .join('');
+
+  return `
+  <div style="font-family: -apple-system, Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h2 style="color:#111;">Your week ahead</h2>
+    ${
+      meetings.length > 0
+        ? `<h3 style="color:#333;">Meetings (${meetings.length})</h3>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:24px;">
+      <tbody>${meetingRows}</tbody>
+    </table>`
+        : ''
+    }
+    ${
+      tasks.length > 0
+        ? `<h3 style="color:#333;">Tasks due this week (${tasks.length})</h3>
+    <table style="width:100%;border-collapse:collapse;">
+      <tbody>${taskRows}</tbody>
+    </table>`
+        : ''
+    }
+    <p style="color:#999;font-size:12px;margin-top:24px;">
+      Open your <a href="${process.env.APP_URL}/dashboard">CatchMail dashboard</a> to manage tasks.
+    </p>
+  </div>`;
+}
+
+export async function sendWeeklySummaryEmail(user, meetings, tasks) {
+  const resend = getClient();
+  const from = process.env.RESEND_FROM_EMAIL;
+  if (!from) {
+    throw new Error('RESEND_FROM_EMAIL is not set.');
+  }
+
+  const total = meetings.length + tasks.length;
+  await resend.emails.send({
+    from,
+    to: user.email,
+    subject: `CatchMail: your week ahead — ${total} item${total === 1 ? '' : 's'}`,
+    html: buildWeeklySummaryHtml(meetings, tasks),
+  });
+}

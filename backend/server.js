@@ -12,6 +12,7 @@ const { createApp } = await import('./app.js');
 const { runSync } = await import('./jobs/sync.js');
 const { runDigest } = await import('./jobs/digest.js');
 const { runReminders } = await import('./jobs/reminders.js');
+const { runWeeklySummary } = await import('./jobs/weeklySummary.js');
 
 const app = createApp();
 const port = process.env.PORT || 4000;
@@ -36,4 +37,10 @@ cron.schedule('0 8 * * *', () => {
 // still accurate to within a minute.
 cron.schedule('* * * * *', () => {
   runReminders().catch((err) => console.error('[cron] reminders job crashed:', err));
+});
+
+// Weekly summary email, Monday 08:00 server time.
+cron.schedule('0 8 * * 1', () => {
+  console.log('[cron] running weekly summary...');
+  runWeeklySummary().catch((err) => console.error('[cron] weekly summary job crashed:', err));
 });
