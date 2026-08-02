@@ -41,6 +41,11 @@ alter table users add column if not exists dashboard_mobile_layout text not null
 alter table users add column if not exists reminder_lead_minutes integer not null default 30;
 alter table users add column if not exists phone_number text;
 alter table users add column if not exists phone_verified boolean not null default false;
+alter table users add column if not exists vip_senders text[] not null default '{}';
+
+alter table tasks add column if not exists feedback text check (feedback in ('up', 'down'));
+alter table tasks add column if not exists is_vip boolean not null default false;
+alter table tasks add column if not exists snoozed_until timestamptz;
 
 create table if not exists push_subscriptions (
   id uuid primary key default gen_random_uuid(),
