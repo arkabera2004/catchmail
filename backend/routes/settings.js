@@ -11,9 +11,10 @@ router.use(requireAuth);
 
 const MOBILE_LAYOUTS = ['tabs', 'stacked', 'next_up'];
 const REMINDER_LEAD_OPTIONS = [10, 30, 60];
+const MAX_VIP_SENDERS = 20;
 
 export function validatePreferencesUpdate(body) {
-  const { dashboard_mobile_layout, reminder_lead_minutes } = body;
+  const { dashboard_mobile_layout, reminder_lead_minutes, vip_senders } = body;
   const updates = {};
   if (dashboard_mobile_layout !== undefined) {
     if (!MOBILE_LAYOUTS.includes(dashboard_mobile_layout)) {
@@ -26,6 +27,16 @@ export function validatePreferencesUpdate(body) {
       return { error: `reminder_lead_minutes must be one of: ${REMINDER_LEAD_OPTIONS.join(', ')}` };
     }
     updates.reminder_lead_minutes = reminder_lead_minutes;
+  }
+  if (vip_senders !== undefined) {
+    if (!Array.isArray(vip_senders)) {
+      return { error: 'vip_senders must be an array of strings' };
+    }
+    const cleaned = vip_senders.map((s) => String(s).trim().toLowerCase()).filter((s) => s.length > 0);
+    if (cleaned.length > MAX_VIP_SENDERS) {
+      return { error: `vip_senders can have at most ${MAX_VIP_SENDERS} entries` };
+    }
+    updates.vip_senders = cleaned;
   }
   if (Object.keys(updates).length === 0) {
     return { error: 'No valid fields to update' };

@@ -12,6 +12,7 @@ export default function Settings() {
   const [phoneInput, setPhoneInput] = useState('');
   const [codeInput, setCodeInput] = useState('');
   const [codeSent, setCodeSent] = useState(false);
+  const [vipInput, setVipInput] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -74,6 +75,21 @@ export default function Settings() {
     } catch (err) {
       setMessage(`Verification failed: ${err.message}`);
     }
+  }
+
+  async function handleAddVip() {
+    const entry = vipInput.trim().toLowerCase();
+    if (!entry) return;
+    const next = [...new Set([...(user.vip_senders || []), entry])];
+    const { user: updated } = await api.updatePreferences({ vip_senders: next });
+    setUser(updated);
+    setVipInput('');
+  }
+
+  async function handleRemoveVip(entry) {
+    const next = (user.vip_senders || []).filter((s) => s !== entry);
+    const { user: updated } = await api.updatePreferences({ vip_senders: next });
+    setUser(updated);
   }
 
   async function handlePauseToggle() {
@@ -171,6 +187,38 @@ export default function Settings() {
               Disconnect Gmail
             </button>
           </div>
+        </section>
+
+        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-3">
+          <h2 className="font-semibold text-slate-900 dark:text-white">VIP senders</h2>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Tasks from these senders get a priority badge and an immediate push notification instead of waiting for the daily digest.
+          </p>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={vipInput}
+              onChange={(e) => setVipInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAddVip()}
+              placeholder="boss@company.com"
+              className="flex-1 text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+            <button onClick={handleAddVip} className="border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition">
+              Add
+            </button>
+          </div>
+          {(user.vip_senders || []).length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {user.vip_senders.map((entry) => (
+                <span key={entry} className="inline-flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs px-3 py-1.5 rounded-full">
+                  {entry}
+                  <button onClick={() => handleRemoveVip(entry)} aria-label={`Remove ${entry}`} className="text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-200">
+                    &times;
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
         </section>
 
         <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-4">

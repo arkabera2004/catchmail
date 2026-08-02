@@ -2,6 +2,7 @@ import { google } from 'googleapis';
 import { supabase } from '../db/supabase.js';
 import { decrypt } from '../lib/crypto.js';
 import { extractTasks } from './gemini.js';
+import { sendPushToUser } from './push.js';
 
 const NOREPLY_PATTERNS = [
   /no-?reply/i,
@@ -30,6 +31,15 @@ export async function getAuthedGmailClient(user) {
   const oauth2Client = getOAuthClient();
   oauth2Client.setCredentials({ refresh_token: refreshToken });
   return google.gmail({ version: 'v1', auth: oauth2Client });
+}
+
+/** Case-insensitive check of whether a "From" header matches any of the
+ * user's VIP sender entries (plain substring match — VIP entries are
+ * typically full email addresses, but a domain or name fragment also
+ * works since From headers include the display name). */
+export function matchesVipSender(from, vipSenders) {
+  const lowerFrom = from.toLowerCase();
+  return (vipSenders || []).some((vip) => lowerFrom.includes(vip.toLowerCase()));
 }
 
 function headerValue(headers, name) {
@@ -141,9 +151,12 @@ async function processMessage(user, parsed) {
     return;
   }
 
+  const isVip = matchesVipSender(parsed.from, user.vip_senders);
+
   const rows = result.tasks.map((t) => ({
     user_id: user.id,
     task_text: t.task,
+    type: t.type || 'task',
     deadline: t.deadline || null,
     source_email_id: parsed.id,
     source_email_link: `https://mail.google.com/mail/u/0/#inbox/${parsed.threadId}`,
@@ -151,6 +164,7 @@ async function processMessage(user, parsed) {
     source_email_sender: parsed.from,
     confidence: t.confidence,
     status: 'open',
+    is_vip: isVip,
   }));
 
   const { error } = await supabase.from('tasks').upsert(rows, {
@@ -158,6 +172,18 @@ async function processMessage(user, parsed) {
     ignoreDuplicates: true,
   });
   if (error) throw error;
+
+  // VIP senders bypass the daily digest wait — notify immediately.
+  if (isVip) {
+    try {
+      await sendPushToUser(user.id, {
+        title: 'New task from a VIP sender',
+        body: `${parsed.from}: ${result.tasks[0].task}`,
+      });
+    } catch (err) {
+      console.error(`[gmail] VIP push notification failed for user ${user.id}:`, err.message);
+    }
+  }
 }
 
 async function fetchAndProcess(gmail, user, messageId) {

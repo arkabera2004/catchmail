@@ -18,6 +18,7 @@ export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete
 
       <div className="flex-1 min-w-0">
         <p className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
+          {task.is_vip && <span title="VIP sender" className="mr-1">⭐</span>}
           {task.task_text}
         </p>
         <div className="flex items-center gap-2 mt-0.5">
