@@ -11,6 +11,7 @@ const cron = (await import('node-cron')).default;
 const { createApp } = await import('./app.js');
 const { runSync } = await import('./jobs/sync.js');
 const { runDigest } = await import('./jobs/digest.js');
+const { runReminders } = await import('./jobs/reminders.js');
 
 const app = createApp();
 const port = process.env.PORT || 4000;
@@ -29,4 +30,10 @@ cron.schedule('*/15 * * * *', () => {
 cron.schedule('0 8 * * *', () => {
   console.log('[cron] running daily digest...');
   runDigest().catch((err) => console.error('[cron] digest job crashed:', err));
+});
+
+// Meeting reminders — checked every minute so a 10-minute lead time is
+// still accurate to within a minute.
+cron.schedule('* * * * *', () => {
+  runReminders().catch((err) => console.error('[cron] reminders job crashed:', err));
 });
