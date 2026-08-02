@@ -3,10 +3,15 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../lib/api.js';
 import ThemeToggle from '../components/ThemeToggle.jsx';
 import AccountMenu from '../components/AccountMenu.jsx';
+import { subscribeToPush, unsubscribeFromPush } from '../lib/push.js';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState('');
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [phoneInput, setPhoneInput] = useState('');
+  const [codeInput, setCodeInput] = useState('');
+  const [codeSent, setCodeSent] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,7 +19,62 @@ export default function Settings() {
       .me()
       .then(({ user }) => setUser(user))
       .catch(() => navigate('/'));
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistration().then(async (reg) => {
+        const sub = await reg?.pushManager.getSubscription();
+        setPushEnabled(!!sub);
+      });
+    }
   }, [navigate]);
+
+  async function handleTogglePush() {
+    try {
+      if (pushEnabled) {
+        await unsubscribeFromPush();
+        setPushEnabled(false);
+        setMessage('Push notifications disabled.');
+      } else {
+        await subscribeToPush(import.meta.env.VITE_VAPID_PUBLIC_KEY);
+        setPushEnabled(true);
+        setMessage('Push notifications enabled.');
+      }
+    } catch (err) {
+      setMessage(`Push notifications failed: ${err.message}`);
+    }
+  }
+
+  async function handleMobileLayoutChange(value) {
+    const { user: updated } = await api.updatePreferences({ dashboard_mobile_layout: value });
+    setUser(updated);
+  }
+
+  async function handleReminderLeadChange(value) {
+    const { user: updated } = await api.updatePreferences({ reminder_lead_minutes: Number(value) });
+    setUser(updated);
+  }
+
+  async function handleSendCode() {
+    try {
+      await api.sendPhoneCode(phoneInput);
+      setCodeSent(true);
+      setMessage('Verification code sent.');
+    } catch (err) {
+      setMessage(`Failed to send code: ${err.message}`);
+    }
+  }
+
+  async function handleVerifyCode() {
+    try {
+      await api.verifyPhoneCode(phoneInput, codeInput);
+      setUser((u) => ({ ...u, phone_number: phoneInput, phone_verified: true }));
+      setCodeSent(false);
+      setCodeInput('');
+      setMessage('Phone number verified — SMS reminders are on.');
+    } catch (err) {
+      setMessage(`Verification failed: ${err.message}`);
+    }
+  }
 
   async function handlePauseToggle() {
     if (user.paused) {
@@ -110,6 +170,95 @@ export default function Settings() {
             <button onClick={handleDisconnect} className="border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition">
               Disconnect Gmail
             </button>
+          </div>
+        </section>
+
+        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+          <h2 className="font-semibold text-slate-900 dark:text-white">Notifications</h2>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Push notifications</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Get a browser notification before a meeting starts.</p>
+            </div>
+            <button
+              onClick={handleTogglePush}
+              className="border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+            >
+              {pushEnabled ? 'Disable' : 'Enable'}
+            </button>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-900 dark:text-slate-100 block mb-1">Remind me before a meeting</label>
+            <select
+              value={user.reminder_lead_minutes}
+              onChange={(e) => handleReminderLeadChange(e.target.value)}
+              className="text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value={10}>10 minutes before</option>
+              <option value={30}>30 minutes before</option>
+              <option value={60}>60 minutes before</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-slate-900 dark:text-slate-100 block mb-1">Mobile dashboard layout</label>
+            <select
+              value={user.dashboard_mobile_layout}
+              onChange={(e) => handleMobileLayoutChange(e.target.value)}
+              className="text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="stacked">Stacked (meetings on top)</option>
+              <option value="tabs">Tabs</option>
+              <option value="next_up">Next-up card</option>
+            </select>
+          </div>
+
+          <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+            <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">SMS reminders</p>
+            {user.plan !== 'paid' ? (
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                SMS reminders are a{' '}
+                <Link to="/coming-soon" className="text-indigo-500 dark:text-indigo-400 hover:underline">
+                  Pro
+                </Link>{' '}
+                feature.
+              </p>
+            ) : user.phone_verified ? (
+              <p className="text-sm text-slate-500 dark:text-slate-400">Verified: {user.phone_number}</p>
+            ) : (
+              <div className="flex flex-col gap-2 max-w-xs">
+                <input
+                  type="tel"
+                  value={phoneInput}
+                  onChange={(e) => setPhoneInput(e.target.value)}
+                  placeholder="+15551234567"
+                  className="text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                {!codeSent ? (
+                  <button
+                    onClick={handleSendCode}
+                    className="border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                  >
+                    Send code
+                  </button>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      value={codeInput}
+                      onChange={(e) => setCodeInput(e.target.value)}
+                      placeholder="6-digit code"
+                      className="text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <button onClick={handleVerifyCode} className="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                      Verify
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </section>
 

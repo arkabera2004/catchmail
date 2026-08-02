@@ -70,6 +70,7 @@ catchmail/
 
    ```
    VITE_BACKEND_URL=http://localhost:4000
+   VITE_VAPID_PUBLIC_KEY=<same public key as the backend's VAPID_PUBLIC_KEY>
    ```
 
    The backend automatically loads the **root** `.env` file (see
