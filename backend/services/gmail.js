@@ -132,6 +132,29 @@ async function countTasksThisMonth(userId) {
 
 const FREE_TIER_MONTHLY_TASK_CAP = 30;
 
+/** Finds an existing open meeting that's really the same recurring meeting
+ * as the candidate — same text, and the same weekly slot (day-of-week +
+ * time-of-day). Used to bump the existing row's deadline forward instead of
+ * creating a duplicate every time a recurring meeting's email lands again. */
+export function findRecurringMatch(existingMeetings, candidateTaskText, candidateDeadline) {
+  if (!candidateDeadline) return null;
+  const normalizedText = candidateTaskText.trim().toLowerCase();
+  const candidateDate = new Date(candidateDeadline);
+
+  return (
+    existingMeetings.find((m) => {
+      if (m.type !== 'meeting' || m.status !== 'open' || !m.deadline) return false;
+      if (m.task_text.trim().toLowerCase() !== normalizedText) return false;
+      const existingDate = new Date(m.deadline);
+      return (
+        existingDate.getUTCDay() === candidateDate.getUTCDay() &&
+        existingDate.getUTCHours() === candidateDate.getUTCHours() &&
+        existingDate.getUTCMinutes() === candidateDate.getUTCMinutes()
+      );
+    }) || null
+  );
+}
+
 async function processMessage(user, parsed) {
   if (user.plan === 'free') {
     const used = await countTasksThisMonth(user.id);
@@ -153,25 +176,54 @@ async function processMessage(user, parsed) {
 
   const isVip = matchesVipSender(parsed.from, user.vip_senders);
 
-  const rows = result.tasks.map((t) => ({
-    user_id: user.id,
-    task_text: t.task,
-    type: t.type || 'task',
-    deadline: t.deadline || null,
-    source_email_id: parsed.id,
-    source_email_link: `https://mail.google.com/mail/u/0/#inbox/${parsed.threadId}`,
-    source_email_subject: parsed.subject,
-    source_email_sender: parsed.from,
-    confidence: t.confidence,
-    status: 'open',
-    is_vip: isVip,
-  }));
+  const meetingCandidates = result.tasks.filter((t) => t.type === 'meeting' && t.deadline);
+  let existingMeetings = [];
+  if (meetingCandidates.length > 0) {
+    const { data, error: fetchError } = await supabase
+      .from('tasks')
+      .select('id, task_text, deadline, type, status')
+      .eq('user_id', user.id)
+      .eq('type', 'meeting')
+      .eq('status', 'open');
+    if (fetchError) throw fetchError;
+    existingMeetings = data || [];
+  }
 
-  const { error } = await supabase.from('tasks').upsert(rows, {
-    onConflict: 'user_id,source_email_id,task_text',
-    ignoreDuplicates: true,
-  });
-  if (error) throw error;
+  const rows = [];
+  for (const t of result.tasks) {
+    if (t.type === 'meeting' && t.deadline) {
+      const match = findRecurringMatch(existingMeetings, t.task, t.deadline);
+      if (match) {
+        const { error: updateError } = await supabase
+          .from('tasks')
+          .update({ deadline: t.deadline, reminder_sent_at: null })
+          .eq('id', match.id);
+        if (updateError) throw updateError;
+        continue;
+      }
+    }
+    rows.push({
+      user_id: user.id,
+      task_text: t.task,
+      type: t.type || 'task',
+      deadline: t.deadline || null,
+      source_email_id: parsed.id,
+      source_email_link: `https://mail.google.com/mail/u/0/#inbox/${parsed.threadId}`,
+      source_email_subject: parsed.subject,
+      source_email_sender: parsed.from,
+      confidence: t.confidence,
+      status: 'open',
+      is_vip: isVip,
+    });
+  }
+
+  if (rows.length > 0) {
+    const { error } = await supabase.from('tasks').upsert(rows, {
+      onConflict: 'user_id,source_email_id,task_text',
+      ignoreDuplicates: true,
+    });
+    if (error) throw error;
+  }
 
   // VIP senders bypass the daily digest wait — notify immediately.
   if (isVip) {
