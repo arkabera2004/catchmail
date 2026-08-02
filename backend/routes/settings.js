@@ -3,6 +3,7 @@ import { supabase } from '../db/supabase.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { decrypt } from '../lib/crypto.js';
 import { revokeGoogleToken } from '../services/gmail.js';
+import { validatePushSubscription } from '../services/push.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -43,6 +44,31 @@ router.patch('/preferences', async (req, res) => {
     .maybeSingle();
   if (error) return res.status(500).json({ error: error.message });
   res.json({ user: data });
+});
+
+router.post('/push/subscribe', async (req, res) => {
+  const { endpoint, keys } = req.body;
+  const { error: validationError } = validatePushSubscription(req.body);
+  if (validationError) return res.status(400).json({ error: validationError });
+
+  const { error } = await supabase
+    .from('push_subscriptions')
+    .upsert({ user_id: req.session.userId, endpoint, p256dh: keys.p256dh, auth: keys.auth }, { onConflict: 'endpoint' });
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true });
+});
+
+router.post('/push/unsubscribe', async (req, res) => {
+  const { endpoint } = req.body;
+  if (!endpoint) return res.status(400).json({ error: 'endpoint is required' });
+
+  const { error } = await supabase
+    .from('push_subscriptions')
+    .delete()
+    .eq('endpoint', endpoint)
+    .eq('user_id', req.session.userId);
+  if (error) return res.status(500).json({ error: error.message });
+  res.json({ ok: true });
 });
 
 router.post('/pause', async (req, res) => {
