@@ -33,6 +33,29 @@ create table if not exists tasks (
   unique (user_id, source_email_id, task_text)
 );
 
+alter table tasks add column if not exists type text not null default 'task' check (type in ('task', 'meeting'));
+alter table tasks add column if not exists reminder_lead_minutes integer;
+alter table tasks add column if not exists reminder_sent_at timestamptz;
+
+alter table users add column if not exists dashboard_mobile_layout text not null default 'stacked' check (dashboard_mobile_layout in ('tabs', 'stacked', 'next_up'));
+alter table users add column if not exists reminder_lead_minutes integer not null default 30;
+alter table users add column if not exists phone_number text;
+alter table users add column if not exists phone_verified boolean not null default false;
+
+create table if not exists push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references users(id) on delete cascade,
+  endpoint text not null unique,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists idx_push_subscriptions_user_id on push_subscriptions(user_id);
+
+alter table push_subscriptions enable row level security;
+create policy "deny_all_push_subscriptions" on push_subscriptions for all to anon, authenticated using (false);
+
 create table if not exists sync_state (
   user_id uuid primary key references users(id) on delete cascade,
   last_history_id text,
