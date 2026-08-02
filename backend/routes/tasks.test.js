@@ -39,3 +39,13 @@ test('rejects an empty body', () => {
   const result = buildTaskUpdates({});
   assert.ok(result.error);
 });
+
+test('accepts a snoozed_until timestamp', () => {
+  assert.deepEqual(buildTaskUpdates({ snoozed_until: '2026-08-10T00:00:00.000Z' }), {
+    updates: { snoozed_until: '2026-08-10T00:00:00.000Z' },
+  });
+});
+
+test('accepts a null snoozed_until (unsnoozing)', () => {
+  assert.deepEqual(buildTaskUpdates({ snoozed_until: null }), { updates: { snoozed_until: null } });
+});

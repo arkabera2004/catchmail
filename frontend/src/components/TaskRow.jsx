@@ -4,7 +4,15 @@ const CONFIDENCE_STYLES = {
   low: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
 };
 
-export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete, onFeedback }) {
+function isSnoozed(task) {
+  return task.snoozed_until && new Date(task.snoozed_until).getTime() > Date.now();
+}
+
+function snoozeOffsetDate(days) {
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+}
+
+export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete, onFeedback, onSnooze }) {
   const deadlineValue = task.deadline ? task.deadline.slice(0, 10) : '';
 
   return (
@@ -65,6 +73,30 @@ export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete
         onChange={(e) => onDeadlineChange(task, e.target.value)}
         className="text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 [color-scheme:light] dark:[color-scheme:dark]"
       />
+
+      {onSnooze &&
+        (isSnoozed(task) ? (
+          <button
+            onClick={() => onSnooze(task, null)}
+            className="text-xs px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 whitespace-nowrap"
+          >
+            Snoozed till {new Date(task.snoozed_until).toLocaleDateString()} · Unsnooze
+          </button>
+        ) : (
+          <select
+            value=""
+            onChange={(e) => {
+              const days = Number(e.target.value);
+              if (days) onSnooze(task, snoozeOffsetDate(days));
+            }}
+            className="text-xs border border-slate-200 dark:border-slate-700 rounded-full px-2 py-1 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          >
+            <option value="">Snooze…</option>
+            <option value="1">Tomorrow</option>
+            <option value="3">3 days</option>
+            <option value="7">1 week</option>
+          </select>
+        ))}
 
       <button
         onClick={() => onDelete(task)}

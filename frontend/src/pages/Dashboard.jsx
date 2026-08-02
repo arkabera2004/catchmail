@@ -167,6 +167,11 @@ export default function Dashboard() {
     setTasks((prev) => prev.map((t) => (t.id === task.id ? updated.task : t)));
   }
 
+  async function snoozeTask(task, snoozedUntil) {
+    const updated = await api.updateTask(task.id, { snoozed_until: snoozedUntil });
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? updated.task : t)));
+  }
+
   async function handleSyncCalendar() {
     setSyncing(true);
     setSyncMessage(null);
@@ -199,13 +204,20 @@ export default function Dashboard() {
     return tasks.filter((t) => t.status === 'open' && t.deadline && new Date(t.deadline).getTime() <= in7Days).length;
   }, [tasks]);
 
+  const isSnoozed = (t) => t.snoozed_until && new Date(t.snoozed_until).getTime() > Date.now();
+
   const statusFiltered = useMemo(
-    () => tasks.filter((t) => (filter === 'all' ? true : t.status === filter)),
+    () =>
+      tasks.filter((t) => {
+        if (filter !== 'all' && t.status !== filter) return false;
+        if (filter === 'open' && isSnoozed(t)) return false;
+        return true;
+      }),
     [tasks, filter]
   );
 
   const meetings = useMemo(
-    () => tasks.filter((t) => t.type === 'meeting' && t.status === 'open'),
+    () => tasks.filter((t) => t.type === 'meeting' && t.status === 'open' && !isSnoozed(t)),
     [tasks]
   );
   const mobileLayout = user?.dashboard_mobile_layout || 'stacked';
@@ -435,6 +447,7 @@ export default function Dashboard() {
                       onDeadlineChange={changeDeadline}
                       onDelete={deleteTask}
                       onFeedback={giveFeedback}
+                      onSnooze={snoozeTask}
                     />
                   ))}
                 </div>
@@ -453,6 +466,7 @@ export default function Dashboard() {
                   onToggleDone={toggleDone}
                   onDeadlineChange={changeDeadline}
                   onFeedback={giveFeedback}
+                  onSnooze={snoozeTask}
                   onDelete={deleteTask}
                 />
               ))

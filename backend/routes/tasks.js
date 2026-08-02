@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 });
 
 export function buildTaskUpdates(body) {
-  const { deadline, status, feedback } = body;
+  const { deadline, status, feedback, snoozed_until } = body;
   const updates = {};
   if (deadline !== undefined) updates.deadline = deadline;
   if (status !== undefined) {
@@ -31,6 +31,7 @@ export function buildTaskUpdates(body) {
     }
     updates.feedback = feedback;
   }
+  if (snoozed_until !== undefined) updates.snoozed_until = snoozed_until;
   if (Object.keys(updates).length === 0) {
     return { error: 'No valid fields to update' };
   }
