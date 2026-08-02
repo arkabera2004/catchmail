@@ -136,3 +136,4 @@ Gemini API call.
 
 All rights reserved. This code is proprietary — see [LICENSE](./LICENSE) for
 terms. It is not open source; viewing is permitted, reuse is not.
+Made by Arka Bera
