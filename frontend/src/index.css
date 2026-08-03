@@ -1,17 +1,131 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * CatchMail design system — "quiet signal".
+ * Warm paper light mode, deep ink dark mode, a single saturated jade
+ * "signal" color, amber for VIP/urgency. Display type: Instrument Serif.
+ * UI: Plus Jakarta Sans. Meta/labels: JetBrains Mono.
+ */
+:root {
+  --radius: 0.75rem;
+  --background: oklch(0.985 0.006 95);
+  --foreground: oklch(0.21 0.018 155);
+  --ink: oklch(0.17 0.02 160);
+  --surface: oklch(1 0 0);
+  --surface-2: oklch(0.965 0.008 95);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.018 155);
+  --primary: oklch(0.48 0.106 168);
+  --primary-foreground: oklch(0.985 0.01 150);
+  --signal: oklch(0.62 0.135 165);
+  --signal-soft: oklch(0.94 0.038 165);
+  --signal-foreground: oklch(0.24 0.05 168);
+  --amber: oklch(0.74 0.145 68);
+  --amber-soft: oklch(0.95 0.048 82);
+  --secondary: oklch(0.955 0.009 120);
+  --secondary-foreground: oklch(0.28 0.024 160);
+  --muted: oklch(0.955 0.009 120);
+  --muted-foreground: oklch(0.52 0.018 155);
+  --accent: oklch(0.945 0.022 160);
+  --accent-foreground: oklch(0.28 0.04 165);
+  --destructive: oklch(0.55 0.19 25);
+  --destructive-foreground: oklch(0.985 0.005 95);
+  --border: oklch(0.9 0.011 120);
+  --input: oklch(0.9 0.011 120);
+  --ring: oklch(0.62 0.135 165);
+  --shadow-soft: 0 1px 2px oklch(0.21 0.018 155 / 0.05), 0 8px 24px -12px oklch(0.21 0.018 155 / 0.12);
+  --shadow-lift: 0 2px 4px oklch(0.21 0.018 155 / 0.06), 0 24px 48px -24px oklch(0.21 0.018 155 / 0.25);
+  --gradient-signal: linear-gradient(135deg, oklch(0.62 0.135 165), oklch(0.72 0.13 145));
+  --grid-line: oklch(0.21 0.018 155 / 0.05);
+}
+
+.dark {
+  --background: oklch(0.17 0.014 175);
+  --foreground: oklch(0.955 0.008 120);
+  --ink: oklch(0.13 0.012 175);
+  --surface: oklch(0.213 0.016 175);
+  --surface-2: oklch(0.245 0.018 175);
+  --card: oklch(0.213 0.016 175);
+  --card-foreground: oklch(0.955 0.008 120);
+  --primary: oklch(0.74 0.14 162);
+  --primary-foreground: oklch(0.16 0.03 170);
+  --signal: oklch(0.76 0.145 163);
+  --signal-soft: oklch(0.3 0.055 168);
+  --signal-foreground: oklch(0.92 0.06 165);
+  --amber: oklch(0.8 0.14 72);
+  --amber-soft: oklch(0.32 0.06 68);
+  --secondary: oklch(0.26 0.017 175);
+  --secondary-foreground: oklch(0.955 0.008 120);
+  --muted: oklch(0.26 0.017 175);
+  --muted-foreground: oklch(0.68 0.016 160);
+  --accent: oklch(0.28 0.03 170);
+  --accent-foreground: oklch(0.93 0.03 160);
+  --destructive: oklch(0.66 0.17 25);
+  --destructive-foreground: oklch(0.98 0.005 95);
+  --border: oklch(1 0 0 / 9%);
+  --input: oklch(1 0 0 / 13%);
+  --ring: oklch(0.76 0.145 163);
+  --shadow-soft: 0 1px 2px oklch(0 0 0 / 0.4), 0 8px 24px -12px oklch(0 0 0 / 0.6);
+  --shadow-lift: 0 2px 4px oklch(0 0 0 / 0.5), 0 24px 48px -24px oklch(0 0 0 / 0.8);
+  --gradient-signal: linear-gradient(135deg, oklch(0.76 0.145 163), oklch(0.82 0.13 148));
+  --grid-line: oklch(1 0 0 / 0.045);
+}
 
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'ss01', 'cv01';
+}
+
+::selection {
+  background: color-mix(in oklab, var(--signal) 30%, transparent);
 }
 
 @layer utilities {
+  .font-display {
+    font-family: 'Instrument Serif', ui-serif, Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+  }
+
+  .text-eyebrow {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .bg-grid {
+    background-image: linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+
+  .surface-card {
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) + 4px);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .hover-lift {
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .hover-lift:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lift);
+  }
+
   .animate-fade-in {
     animation: fade-in 0.4s ease-out both;
   }
