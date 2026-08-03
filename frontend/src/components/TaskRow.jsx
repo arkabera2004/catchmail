@@ -1,7 +1,9 @@
+import { Check, Star, ThumbsUp, ThumbsDown, Trash2, CornerUpRight } from 'lucide-react';
+
 const CONFIDENCE_STYLES = {
-  high: 'bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-400',
-  medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-500/15 dark:text-yellow-400',
-  low: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
+  high: 'bg-signal-soft text-signal-foreground',
+  medium: 'bg-amber-soft text-amber',
+  low: 'bg-muted text-muted-foreground',
 };
 
 function isSnoozed(task) {
@@ -29,101 +31,111 @@ export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete
   const deadlineValue = task.deadline ? task.deadline.slice(0, 10) : '';
 
   return (
-    <div className="flex items-center gap-3 py-2 px-3 border-b border-slate-100 dark:border-slate-800 last:border-b-0 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
-      <input
-        type="checkbox"
-        checked={task.status === 'done'}
-        onChange={() => onToggleDone(task)}
-        className="h-5 w-5 rounded border-slate-300 dark:border-slate-600 dark:bg-slate-800 text-indigo-600 focus:ring-indigo-500"
-      />
+    <li className="group relative flex flex-wrap items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-2/60">
+      <button
+        onClick={() => onToggleDone(task)}
+        aria-label={task.status === 'done' ? 'Mark as open' : 'Mark as done'}
+        className={`grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-all ${
+          task.status === 'done'
+            ? 'border-signal bg-signal text-primary-foreground'
+            : 'border-border hover:border-signal hover:bg-signal-soft'
+        }`}
+      >
+        {task.status === 'done' && <Check className="h-3.5 w-3.5" />}
+      </button>
 
-      <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium ${task.status === 'done' ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-slate-100'}`}>
-          {task.is_vip && <span title="VIP sender" className="mr-1">⭐</span>}
-          {task.task_text}
-        </p>
-        <div className="flex items-center gap-2 mt-0.5">
-          <a
-            href={task.source_email_link}
-            target="_blank"
-            rel="noreferrer"
-            className="text-xs text-indigo-500 dark:text-indigo-400 hover:underline"
-          >
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className={`text-[15px] leading-snug tracking-[-0.005em] ${task.status === 'done' ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
+            {task.task_text}
+          </p>
+          {task.is_vip && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-soft px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-amber">
+              <Star className="h-3 w-3 fill-current" /> VIP
+            </span>
+          )}
+          <span className={`rounded-full px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider ${CONFIDENCE_STYLES[task.confidence] || CONFIDENCE_STYLES.low}`}>
+            {task.confidence || 'low'}
+          </span>
+        </div>
+
+        <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+          <a href={task.source_email_link} target="_blank" rel="noreferrer" className="text-xs text-signal hover:underline">
             View source email
           </a>
-          {task.calendar_event_id && (
-            <span className="text-xs text-slate-400 dark:text-slate-500">&middot; on calendar</span>
-          )}
-          <a
-            href={buildForwardMailto(task)}
-            className="text-xs text-slate-400 dark:text-slate-500 hover:text-indigo-500 dark:hover:text-indigo-400"
-          >
-            &middot; Forward
+          {task.calendar_event_id && <span className="text-xs text-muted-foreground">On calendar</span>}
+          <a href={buildForwardMailto(task)} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-signal">
+            <CornerUpRight className="h-3 w-3" /> Forward
           </a>
+
+          <input
+            type="date"
+            value={deadlineValue}
+            onChange={(e) => onDeadlineChange(task, e.target.value)}
+            className="text-xs border border-border rounded-full px-2 py-1 bg-surface-2/70 text-foreground focus:outline-none focus:ring-2 focus:ring-ring [color-scheme:light] dark:[color-scheme:dark]"
+          />
+
+          {onSnooze &&
+            (isSnoozed(task) ? (
+              <button
+                onClick={() => onSnooze(task, null)}
+                className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground hover:text-foreground whitespace-nowrap"
+              >
+                Snoozed till {new Date(task.snoozed_until).toLocaleDateString()} · Unsnooze
+              </button>
+            ) : (
+              <select
+                value=""
+                onChange={(e) => {
+                  const days = Number(e.target.value);
+                  if (days) onSnooze(task, snoozeOffsetDate(days));
+                }}
+                className="text-xs border border-border rounded-full px-2 py-1 bg-surface-2/70 text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Snooze…</option>
+                <option value="1">Tomorrow</option>
+                <option value="3">3 days</option>
+                <option value="7">1 week</option>
+              </select>
+            ))}
         </div>
       </div>
 
-      <span className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${CONFIDENCE_STYLES[task.confidence] || CONFIDENCE_STYLES.low}`}>
-        {task.confidence || 'low'}
-      </span>
+      <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+        {onFeedback && (
+          <>
+            <IconAction
+              label="Good catch"
+              active={task.feedback === 'up'}
+              onClick={() => onFeedback(task, task.feedback === 'up' ? null : 'up')}
+              icon={<ThumbsUp className="h-3.5 w-3.5" />}
+            />
+            <IconAction
+              label="Not a task"
+              active={task.feedback === 'down'}
+              onClick={() => onFeedback(task, task.feedback === 'down' ? null : 'down')}
+              icon={<ThumbsDown className="h-3.5 w-3.5" />}
+            />
+          </>
+        )}
+        <IconAction label="Delete" destructive onClick={() => onDelete(task)} icon={<Trash2 className="h-3.5 w-3.5" />} />
+      </div>
+    </li>
+  );
+}
 
-      {onFeedback && (
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => onFeedback(task, task.feedback === 'up' ? null : 'up')}
-            aria-label="Extraction was correct"
-            className={`text-sm transition ${task.feedback === 'up' ? 'text-emerald-500' : 'text-slate-300 dark:text-slate-600 hover:text-emerald-500'}`}
-          >
-            👍
-          </button>
-          <button
-            onClick={() => onFeedback(task, task.feedback === 'down' ? null : 'down')}
-            aria-label="Extraction was wrong"
-            className={`text-sm transition ${task.feedback === 'down' ? 'text-red-500' : 'text-slate-300 dark:text-slate-600 hover:text-red-500'}`}
-          >
-            👎
-          </button>
-        </div>
-      )}
-
-      <input
-        type="date"
-        value={deadlineValue}
-        onChange={(e) => onDeadlineChange(task, e.target.value)}
-        className="text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-2 py-1.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 [color-scheme:light] dark:[color-scheme:dark]"
-      />
-
-      {onSnooze &&
-        (isSnoozed(task) ? (
-          <button
-            onClick={() => onSnooze(task, null)}
-            className="text-xs px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 whitespace-nowrap"
-          >
-            Snoozed till {new Date(task.snoozed_until).toLocaleDateString()} · Unsnooze
-          </button>
-        ) : (
-          <select
-            value=""
-            onChange={(e) => {
-              const days = Number(e.target.value);
-              if (days) onSnooze(task, snoozeOffsetDate(days));
-            }}
-            className="text-xs border border-slate-200 dark:border-slate-700 rounded-full px-2 py-1 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          >
-            <option value="">Snooze…</option>
-            <option value="1">Tomorrow</option>
-            <option value="3">3 days</option>
-            <option value="7">1 week</option>
-          </select>
-        ))}
-
-      <button
-        onClick={() => onDelete(task)}
-        className="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 text-sm transition"
-        aria-label="Delete task"
-      >
-        Delete
-      </button>
-    </div>
+function IconAction({ icon, label, onClick, active, destructive }) {
+  return (
+    <button
+      type="button"
+      title={label}
+      aria-label={label}
+      onClick={onClick}
+      className={`grid h-7 w-7 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground ${
+        active ? 'bg-signal-soft text-signal-foreground' : ''
+      } ${destructive ? 'hover:bg-destructive/10 hover:text-destructive' : ''}`}
+    >
+      {icon}
+    </button>
   );
 }

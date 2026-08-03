@@ -22,9 +22,9 @@ export default function NextUpCard({ meetings }) {
     <div>
       <button
         onClick={() => setExpanded((e) => !e)}
-        className="w-full text-left bg-indigo-600 hover:bg-indigo-700 transition text-white rounded-lg px-3 py-2"
+        className="w-full text-left bg-signal hover:opacity-90 transition text-primary-foreground rounded-xl px-4 py-3 shadow-soft"
       >
-        <p className="text-xs uppercase tracking-wide opacity-80">Next up</p>
+        <p className="text-eyebrow opacity-80">Next up</p>
         <p className="text-sm font-medium">
           {next.task_text} · {timeUntil(next.deadline)}
         </p>
