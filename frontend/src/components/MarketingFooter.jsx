@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Logo } from './Brand.jsx';
 
 const SUPPORT_EMAIL = 'arkabera2004@gmail.com';
 
@@ -29,30 +30,22 @@ const COLUMNS = [
 
 export default function MarketingFooter() {
   return (
-    <footer className="border-t border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/40">
-      <div className="max-w-6xl mx-auto w-full px-6 py-12 grid sm:grid-cols-2 md:grid-cols-4 gap-10">
+    <footer className="border-t border-border bg-surface-2/60">
+      <div className="mx-auto w-full max-w-6xl px-5 py-14 grid gap-10 sm:grid-cols-2 md:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <div className="w-7 h-7 rounded-lg bg-slate-900 dark:bg-white flex items-center justify-center">
-              <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 text-white dark:text-slate-900">
-                <path d="M4 6h16v12H4z" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" />
-                <path d="M4 7l8 6 8-6" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" />
-              </svg>
-            </div>
-            <span className="font-bold text-slate-900 dark:text-white">CatchMail</span>
-          </div>
-          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+          <Logo />
+          <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">
             Never miss a task hidden in an email again.
           </p>
         </div>
 
         {COLUMNS.map((col) => (
           <div key={col.title}>
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 mb-3">{col.title}</p>
-            <ul className="space-y-2">
+            <p className="text-eyebrow text-muted-foreground">{col.title}</p>
+            <ul className="mt-4 space-y-2.5">
               {col.links.map((link) => (
                 <li key={link.label}>
-                  <Link to={link.to} className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
+                  <Link to={link.to} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
                     {link.label}
                   </Link>
                 </li>
@@ -62,12 +55,12 @@ export default function MarketingFooter() {
         ))}
       </div>
 
-      <div className="border-t border-slate-100 dark:border-slate-800">
-        <div className="max-w-6xl mx-auto w-full px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 dark:text-slate-500">
+      <div className="border-t border-border">
+        <div className="mx-auto w-full max-w-6xl px-5 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-muted-foreground">
           <p>&copy; {new Date().getFullYear()} CatchMail. Made by Arka Bera.</p>
           <p>
             Questions or issues?{' '}
-            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-indigo-500 dark:text-indigo-400 hover:underline">
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-signal hover:underline">
               {SUPPORT_EMAIL}
             </a>
           </p>
