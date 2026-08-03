@@ -95,6 +95,20 @@ catchmail/
 
 5. Visit `http://localhost:3000`, click **Connect Gmail**, and authorize.
 
+## Running tests
+
+Both the backend and frontend have unit test suites (Node's built-in test
+runner — no extra dependency needed):
+
+```bash
+cd backend && npm test
+cd frontend && npm test
+```
+
+These cover pure logic (validation, extraction classification, reminder
+scheduling, calendar date-range math, etc.) — they don't hit Gmail, Gemini,
+or any other external API, so no `.env` setup is required to run them.
+
 ## Environment variables
 
 All variables live in `.env.example` at the project root, each with a comment
