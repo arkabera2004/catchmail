@@ -1,9 +1,27 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AlertTriangle, ArrowUpRight, Check, Mail, Pause, Play, Plus, Smartphone, Sparkles, Unplug, X } from 'lucide-react';
 import { api } from '../lib/api.js';
-import ThemeToggle from '../components/ThemeToggle.jsx';
-import AccountMenu from '../components/AccountMenu.jsx';
+import AppHeader from '../components/AppHeader.jsx';
+import { Avatar } from '../components/AccountMenu.jsx';
+import { Eyebrow } from '../components/Brand.jsx';
 import { subscribeToPush, unsubscribeFromPush } from '../lib/push.js';
+
+function Section({ title, description, children, tone = 'default' }) {
+  return (
+    <section className={`grid gap-6 border-t border-border py-8 md:grid-cols-[240px_1fr] ${tone === 'danger' ? 'border-destructive/30' : ''}`}>
+      <div>
+        <h2 className={`text-[17px] font-semibold tracking-[-0.01em] ${tone === 'danger' ? 'text-destructive' : ''}`}>{title}</h2>
+        <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{description}</p>
+      </div>
+      <div className="space-y-4">{children}</div>
+    </section>
+  );
+}
+
+function Row({ children, className = '' }) {
+  return <div className={`surface-card flex flex-wrap items-center gap-4 p-5 ${className}`}>{children}</div>;
+}
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -117,210 +135,232 @@ export default function Settings() {
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen dark:bg-slate-950 flex items-center justify-center text-slate-500 dark:text-slate-400">
-        Loading…
-      </div>
-    );
+    return <div className="min-h-screen bg-background flex items-center justify-center text-muted-foreground">Loading…</div>;
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-2xl mx-auto px-6 py-2.5 flex items-center justify-between">
-          <Link to="/dashboard" className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
-            CatchMail
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link to="/dashboard" className="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition">
-              Back to dashboard
-            </Link>
-            <ThemeToggle />
-            <AccountMenu user={user} />
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-background">
+      <AppHeader user={user} />
 
-      <main className="max-w-2xl mx-auto px-6 py-5 space-y-3">
-        <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Settings</h1>
+      <main className="mx-auto w-full max-w-3xl px-5 py-8">
+        <header className="pb-6">
+          <Eyebrow>Account</Eyebrow>
+          <h1 className="font-display mt-2 text-3xl md:text-4xl">Settings</h1>
+          <p className="mt-2 max-w-xl text-muted-foreground">
+            Control what CatchMail reads, who counts as important, and how loudly we remind you.
+          </p>
+        </header>
 
         {message && (
-          <div className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-sm px-3 py-2 rounded-lg animate-fade-in">{message}</div>
+          <div className="mb-2 bg-signal-soft text-signal-foreground text-sm px-4 py-2.5 rounded-lg animate-fade-in">{message}</div>
         )}
 
-        <section className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-4 space-y-2.5">
-          <h2 className="font-semibold text-slate-900 dark:text-white">Account</h2>
-          <div className="flex items-center gap-3">
-            {user.picture ? (
-              <img src={user.picture} alt={user.name || user.email} referrerPolicy="no-referrer" className="w-12 h-12 rounded-full object-cover" />
-            ) : (
-              <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-lg">
-                {(user.name || user.email).charAt(0).toUpperCase()}
-              </div>
-            )}
-            <div>
-              {user.name && <p className="text-sm font-medium text-slate-900 dark:text-white">{user.name}</p>}
-              <p className="text-sm text-slate-500 dark:text-slate-400">{user.email}</p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 capitalize">{user.plan} plan</p>
+        <Section title="Account" description="Your profile and current plan.">
+          <Row>
+            <Avatar user={user} size={52} />
+            <div className="min-w-0 flex-1">
+              <p className="text-[15px] font-semibold">{user.name}</p>
+              <p className="truncate text-sm text-muted-foreground">{user.email}</p>
             </div>
-          </div>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-signal-soft px-3 py-1 font-mono text-[11px] uppercase tracking-wider text-signal-foreground">
+              <Sparkles className="h-3 w-3" /> {user.plan}
+            </span>
+          </Row>
           {user.plan === 'free' && (
-            <Link
-              to="/coming-soon"
-              className="inline-block bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-sm px-4 py-2 rounded-lg font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition"
-            >
-              Upgrade to Pro
-            </Link>
+            <div className="surface-card flex flex-wrap items-center gap-4 bg-signal-soft/40 p-5">
+              <div className="min-w-0 flex-1">
+                <p className="text-[15px] font-semibold">Upgrade to Pro</p>
+                <p className="mt-1 text-sm text-muted-foreground">Remove the monthly task cap and unlock SMS reminders.</p>
+              </div>
+              <Link to="/coming-soon" className="inline-flex items-center gap-1.5 rounded-full bg-signal text-primary-foreground px-4 py-2 text-sm font-medium hover:opacity-90 transition">
+                Upgrade <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </div>
           )}
-        </section>
+        </Section>
 
-        <section className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-4 space-y-2.5">
-          <h2 className="font-semibold text-slate-900 dark:text-white">Gmail sync</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            {user.paused ? 'Scanning is currently paused.' : 'Scanning runs every 15 minutes.'}
-          </p>
-          <div className="flex gap-3">
-            <button onClick={handlePauseToggle} className="border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition">
-              {user.paused ? 'Resume scanning' : 'Pause scanning'}
+        <Section title="Gmail sync" description="CatchMail has read-only access. Pause any time; disconnect removes the token instantly.">
+          <Row>
+            <span className="grid h-11 w-11 place-items-center rounded-xl bg-surface-2">
+              <Mail className="h-5 w-5 text-signal" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[15px] font-semibold">{user.email}</p>
+              <p className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
+                <span className={`h-1.5 w-1.5 rounded-full ${user.paused ? 'bg-amber' : 'bg-signal'}`} />
+                {user.paused ? 'Scanning is currently paused.' : 'Scanning runs every 15 minutes.'}
+              </p>
+            </div>
+            <button onClick={handlePauseToggle} className="inline-flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-sm hover:bg-accent transition">
+              {user.paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+              {user.paused ? 'Resume' : 'Pause'}
             </button>
-            <button onClick={handleDisconnect} className="border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition">
-              Disconnect Gmail
+            <button
+              onClick={handleDisconnect}
+              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm text-destructive hover:bg-destructive/10 transition"
+            >
+              <Unplug className="h-4 w-4" /> Disconnect
             </button>
-          </div>
-        </section>
+          </Row>
+        </Section>
 
-        <section className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-4 space-y-2.5">
-          <h2 className="font-semibold text-slate-900 dark:text-white">VIP senders</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Tasks from these senders get a priority badge and an immediate push notification instead of waiting for the daily digest.
-          </p>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={vipInput}
-              onChange={(e) => setVipInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAddVip()}
-              placeholder="boss@company.com"
-              className="flex-1 text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            <button onClick={handleAddVip} className="border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition">
-              Add
-            </button>
-          </div>
-          {(user.vip_senders || []).length > 0 && (
+        <Section title="VIP senders" description="Tasks from these addresses get a priority badge and an immediate push notification.">
+          <Row className="flex-col items-stretch gap-4">
             <div className="flex flex-wrap gap-2">
-              {user.vip_senders.map((entry) => (
-                <span key={entry} className="inline-flex items-center gap-1.5 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-xs px-3 py-1.5 rounded-full">
+              {(user.vip_senders || []).map((entry) => (
+                <span key={entry} className="inline-flex items-center gap-2 rounded-full border border-border bg-surface-2 py-1 pl-3 pr-1.5 font-mono text-[12px]">
                   {entry}
-                  <button onClick={() => handleRemoveVip(entry)} aria-label={`Remove ${entry}`} className="text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-200">
-                    &times;
+                  <button
+                    aria-label={`Remove ${entry}`}
+                    onClick={() => handleRemoveVip(entry)}
+                    className="grid h-5 w-5 place-items-center rounded-full text-muted-foreground transition-colors hover:bg-destructive/15 hover:text-destructive"
+                  >
+                    <X className="h-3 w-3" />
                   </button>
                 </span>
               ))}
             </div>
-          )}
-        </section>
-
-        <section className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-4 space-y-3">
-          <h2 className="font-semibold text-slate-900 dark:text-white">Notifications</h2>
-
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Push notifications</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Get a browser notification before a meeting starts.</p>
+            <div className="flex gap-2">
+              <input
+                value={vipInput}
+                onChange={(e) => setVipInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddVip()}
+                placeholder="boss@company.com"
+                className="flex-1 h-10 rounded-full border border-border bg-surface-2/70 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+              <button onClick={handleAddVip} className="inline-flex items-center gap-1.5 h-10 shrink-0 rounded-full bg-signal text-primary-foreground px-4 text-sm font-medium hover:opacity-90 transition">
+                <Plus className="h-4 w-4" /> Add
+              </button>
             </div>
-            <button
-              onClick={handleTogglePush}
-              className="border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition"
-            >
+          </Row>
+        </Section>
+
+        <Section title="Notifications" description="How and when we nudge you about what's due.">
+          <Row>
+            <div className="min-w-0 flex-1">
+              <p className="text-[15px] font-semibold">Push notifications</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">Get a browser notification before a meeting starts.</p>
+            </div>
+            <button onClick={handleTogglePush} className="rounded-full border border-border px-4 py-2 text-sm hover:bg-accent transition">
               {pushEnabled ? 'Disable' : 'Enable'}
             </button>
+          </Row>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="surface-card space-y-2 p-5">
+              <label className="text-sm font-medium">Reminder lead time</label>
+              <select
+                value={user.reminder_lead_minutes}
+                onChange={(e) => handleReminderLeadChange(e.target.value)}
+                className="w-full rounded-xl border border-border bg-surface-2/70 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value={10}>10 minutes before</option>
+                <option value={30}>30 minutes before</option>
+                <option value={60}>60 minutes before</option>
+              </select>
+            </div>
+            <div className="surface-card space-y-2 p-5">
+              <label className="text-sm font-medium">Mobile dashboard layout</label>
+              <select
+                value={user.dashboard_mobile_layout}
+                onChange={(e) => handleMobileLayoutChange(e.target.value)}
+                className="w-full rounded-xl border border-border bg-surface-2/70 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="stacked">Stacked (meetings on top)</option>
+                <option value="tabs">Tabs</option>
+                <option value="next_up">Next-up card</option>
+              </select>
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-slate-900 dark:text-slate-100 block mb-1">Remind me before a meeting</label>
-            <select
-              value={user.reminder_lead_minutes}
-              onChange={(e) => handleReminderLeadChange(e.target.value)}
-              className="text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value={10}>10 minutes before</option>
-              <option value={30}>30 minutes before</option>
-              <option value={60}>60 minutes before</option>
-            </select>
-          </div>
+          <div className="surface-card p-5">
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-surface-2">
+                <Smartphone className="h-4.5 w-4.5 text-signal" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[15px] font-semibold">SMS reminders</p>
+                <p className="text-sm text-muted-foreground">
+                  {user.plan !== 'paid' ? (
+                    <>
+                      A{' '}
+                      <Link to="/coming-soon" className="text-signal hover:underline">
+                        Pro
+                      </Link>{' '}
+                      feature.
+                    </>
+                  ) : user.phone_verified ? (
+                    `Verified: ${user.phone_number}`
+                  ) : (
+                    'Verify a number for urgent VIP tasks.'
+                  )}
+                </p>
+              </div>
+              {user.plan === 'paid' && user.phone_verified && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-signal-soft px-3 py-1 font-mono text-[11px] uppercase text-signal-foreground">
+                  <Check className="h-3 w-3" /> Verified
+                </span>
+              )}
+            </div>
 
-          <div>
-            <label className="text-sm font-medium text-slate-900 dark:text-slate-100 block mb-1">Mobile dashboard layout</label>
-            <select
-              value={user.dashboard_mobile_layout}
-              onChange={(e) => handleMobileLayoutChange(e.target.value)}
-              className="text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <option value="stacked">Stacked (meetings on top)</option>
-              <option value="tabs">Tabs</option>
-              <option value="next_up">Next-up card</option>
-            </select>
-          </div>
-
-          <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-            <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">SMS reminders</p>
-            {user.plan !== 'paid' ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                SMS reminders are a{' '}
-                <Link to="/coming-soon" className="text-indigo-500 dark:text-indigo-400 hover:underline">
-                  Pro
-                </Link>{' '}
-                feature.
-              </p>
-            ) : user.phone_verified ? (
-              <p className="text-sm text-slate-500 dark:text-slate-400">Verified: {user.phone_number}</p>
-            ) : (
-              <div className="flex flex-col gap-2 max-w-xs">
+            {user.plan === 'paid' && !user.phone_verified && !codeSent && (
+              <div className="mt-4 flex gap-2">
                 <input
                   type="tel"
                   value={phoneInput}
                   onChange={(e) => setPhoneInput(e.target.value)}
                   placeholder="+15551234567"
-                  className="text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex-1 h-10 rounded-full border border-border bg-surface-2/70 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                 />
-                {!codeSent ? (
-                  <button
-                    onClick={handleSendCode}
-                    className="border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 text-sm px-4 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition"
-                  >
-                    Send code
+                <button onClick={handleSendCode} className="h-10 shrink-0 rounded-full border border-border px-4 text-sm hover:bg-accent transition">
+                  Send code
+                </button>
+              </div>
+            )}
+
+            {user.plan === 'paid' && !user.phone_verified && codeSent && (
+              <div className="animate-scale-in mt-4 space-y-3">
+                <p className="text-sm text-muted-foreground">
+                  Enter the code sent to <span className="font-mono text-foreground">{phoneInput}</span>
+                </p>
+                <input
+                  type="text"
+                  value={codeInput}
+                  onChange={(e) => setCodeInput(e.target.value)}
+                  placeholder="6-digit code"
+                  className="w-full max-w-xs h-10 rounded-full border border-border bg-surface-2/70 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+                />
+                <div className="flex gap-2">
+                  <button onClick={handleVerifyCode} className="h-10 rounded-full bg-signal text-primary-foreground px-4 text-sm font-medium hover:opacity-90 transition">
+                    Verify
                   </button>
-                ) : (
-                  <>
-                    <input
-                      type="text"
-                      value={codeInput}
-                      onChange={(e) => setCodeInput(e.target.value)}
-                      placeholder="6-digit code"
-                      className="text-sm border border-slate-200 dark:border-slate-700 rounded-lg px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
-                    <button onClick={handleVerifyCode} className="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
-                      Verify
-                    </button>
-                  </>
-                )}
+                  <button onClick={() => setCodeSent(false)} className="h-10 rounded-full px-4 text-sm text-muted-foreground hover:text-foreground transition">
+                    Change number
+                  </button>
+                </div>
               </div>
             )}
           </div>
-        </section>
+        </Section>
 
-        <section className="bg-white dark:bg-slate-900 rounded-lg border border-red-200 dark:border-red-900/50 p-4 space-y-2.5">
-          <h2 className="font-semibold text-red-700 dark:text-red-400">Danger zone</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Permanently delete your account and all extracted tasks.</p>
-          <button onClick={handleDeleteAll} className="bg-red-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition">
-            Delete all data
-          </button>
-        </section>
+        <Section tone="danger" title="Danger zone" description="Permanent, immediate, and not recoverable by support.">
+          <div className="flex flex-wrap items-center gap-4 rounded-xl border border-destructive/30 bg-destructive/5 p-5">
+            <span className="grid h-11 w-11 place-items-center rounded-xl bg-destructive/10">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[15px] font-semibold">Delete all data</p>
+              <p className="mt-0.5 text-sm text-muted-foreground">Permanently delete your account and all extracted tasks.</p>
+            </div>
+            <button onClick={handleDeleteAll} className="rounded-full bg-destructive text-destructive-foreground px-4 py-2 text-sm font-medium hover:opacity-90 transition">
+              Delete everything
+            </button>
+          </div>
+        </Section>
 
-        <p className="text-center text-sm text-slate-400 dark:text-slate-500 pt-2">
+        <p className="text-center text-sm text-muted-foreground pt-6">
           Having an issue?{' '}
-          <a href="mailto:arkabera2004@gmail.com" className="text-indigo-500 dark:text-indigo-400 hover:underline">
+          <a href="mailto:arkabera2004@gmail.com" className="text-signal hover:underline">
             arkabera2004@gmail.com
           </a>
         </p>
