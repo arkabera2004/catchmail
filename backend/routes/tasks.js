@@ -15,10 +15,23 @@ router.get('/', async (req, res) => {
   res.json({ tasks: data });
 });
 
+/** A field is either null (clearing it) or a string that parses to a real
+ * date — rejects garbage like "not-a-date" or non-string types before they
+ * ever reach a raw Postgres update. */
+function isValidDateInput(value) {
+  if (value === null) return true;
+  return typeof value === 'string' && !Number.isNaN(new Date(value).getTime());
+}
+
 export function buildTaskUpdates(body) {
   const { deadline, status, feedback, snoozed_until } = body;
   const updates = {};
-  if (deadline !== undefined) updates.deadline = deadline;
+  if (deadline !== undefined) {
+    if (!isValidDateInput(deadline)) {
+      return { error: 'deadline must be a valid date string or null' };
+    }
+    updates.deadline = deadline;
+  }
   if (status !== undefined) {
     if (!['open', 'done'].includes(status)) {
       return { error: 'status must be "open" or "done"' };
@@ -31,7 +44,12 @@ export function buildTaskUpdates(body) {
     }
     updates.feedback = feedback;
   }
-  if (snoozed_until !== undefined) updates.snoozed_until = snoozed_until;
+  if (snoozed_until !== undefined) {
+    if (!isValidDateInput(snoozed_until)) {
+      return { error: 'snoozed_until must be a valid date string or null' };
+    }
+    updates.snoozed_until = snoozed_until;
+  }
   if (Object.keys(updates).length === 0) {
     return { error: 'No valid fields to update' };
   }
