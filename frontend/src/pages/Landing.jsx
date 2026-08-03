@@ -231,29 +231,38 @@ export default function Landing() {
 
       {/* Bottom CTA */}
       <section className="mx-auto w-full max-w-6xl px-5 py-16">
-        <div className="relative overflow-hidden rounded-3xl border border-border bg-ink px-8 py-14 text-center md:px-16">
+        <div
+          className="relative overflow-hidden rounded-3xl border border-border px-8 py-16 text-center shadow-lift md:px-16"
+          style={{ backgroundColor: 'var(--ink)' }}
+        >
           <div
-            className="pointer-events-none absolute -bottom-32 left-1/2 h-[380px] w-[720px] -translate-x-1/2 rounded-full opacity-40 blur-[110px]"
+            className="pointer-events-none absolute -top-24 left-1/2 h-[420px] w-[760px] -translate-x-1/2 rounded-full opacity-50 blur-[120px]"
             style={{ background: 'var(--gradient-signal)' }}
           />
-          <div className="bg-grid pointer-events-none absolute inset-0 opacity-60" />
+          <div className="bg-grid pointer-events-none absolute inset-0 opacity-40" />
           <div className="relative">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-white/70">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 font-mono text-[11px] uppercase tracking-[0.16em] text-white/70">
               <ShieldCheck className="h-3.5 w-3.5" /> Read-only. Revocable. Yours.
             </span>
-            <h2 className="font-display mx-auto mt-6 max-w-2xl text-3xl text-white md:text-5xl">
+            <h2 className="font-display mx-auto mt-6 max-w-2xl text-4xl text-white md:text-6xl">
               Ready to stop re-reading your inbox?
             </h2>
-            <p className="mx-auto mt-5 max-w-lg text-white/60">
+            <p className="mx-auto mt-5 max-w-lg text-lg text-white/70">
               Free to start. Upgrade only if your inbox needs more than 30 tasks a month.
             </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <a href={api.connectGmailUrl} className="inline-flex items-center bg-white text-ink px-6 py-3 rounded-full font-semibold hover:bg-white/90 transition">
+            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <a
+                href={api.connectGmailUrl}
+                className="inline-flex items-center gap-2.5 bg-white text-ink px-7 py-3.5 rounded-full font-semibold hover:bg-white/90 transition shadow-lg"
+              >
+                <svg viewBox="0 0 24 24" className="w-5 h-5">
+                  <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.4-1.7 4.2-5.5 4.2-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.9 1.5l2.6-2.5C16.9 3.5 14.7 2.5 12 2.5 6.9 2.5 2.8 6.6 2.8 11.7S6.9 20.9 12 20.9c6.9 0 8.7-4.8 8.7-7.3 0-.5 0-.9-.1-1.3H12z" />
+                </svg>
                 Connect Gmail
               </a>
               <Link
                 to="/pricing"
-                className="inline-flex items-center border border-white/20 text-white px-6 py-3 rounded-full font-semibold hover:bg-white/10 transition"
+                className="inline-flex items-center border border-white/20 text-white px-7 py-3.5 rounded-full font-semibold hover:bg-white/10 transition"
               >
                 See pricing
               </Link>
