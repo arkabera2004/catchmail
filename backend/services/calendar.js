@@ -3,6 +3,25 @@ import { supabase } from '../db/supabase.js';
 import { decrypt } from '../lib/crypto.js';
 import { getOAuthClient } from './gmail.js';
 
+const MAX_RANGE_DAYS = 366;
+
+/** Validates the start/end query params for listing calendar events. Pure
+ * so it's testable without a live Google API call. */
+export function validateEventsRange({ start, end }) {
+  if (!start) return { error: 'start is required' };
+  if (!end) return { error: 'end is required' };
+
+  const startMs = new Date(start).getTime();
+  const endMs = new Date(end).getTime();
+  if (Number.isNaN(startMs)) return { error: 'start is not a valid date' };
+  if (Number.isNaN(endMs)) return { error: 'end is not a valid date' };
+  if (endMs <= startMs) return { error: 'end must be after start' };
+  if (endMs - startMs > MAX_RANGE_DAYS * 24 * 60 * 60 * 1000) {
+    return { error: `range cannot exceed ${MAX_RANGE_DAYS} days` };
+  }
+  return {};
+}
+
 async function getAuthedCalendarClient(user) {
   if (!user.google_refresh_token_enc) {
     throw new Error(`User ${user.id} has no stored Gmail refresh token.`);
@@ -35,6 +54,32 @@ function buildEvent(task) {
   }
 
   return event;
+}
+
+/**
+ * Lists every event on the user's primary Google Calendar within
+ * [timeMin, timeMax), normalized to a lean shape for the frontend calendar
+ * views (hourly/daily/weekly/monthly).
+ */
+export async function listEvents(user, timeMin, timeMax) {
+  const calendar = await getAuthedCalendarClient(user);
+  const { data } = await calendar.events.list({
+    calendarId: 'primary',
+    timeMin,
+    timeMax,
+    singleEvents: true,
+    orderBy: 'startTime',
+    maxResults: 2500,
+  });
+
+  return (data.items || []).map((e) => ({
+    id: e.id,
+    summary: e.summary || '(no title)',
+    start: e.start?.dateTime || e.start?.date,
+    end: e.end?.dateTime || e.end?.date,
+    allDay: !e.start?.dateTime,
+    htmlLink: e.htmlLink,
+  }));
 }
 
 /** Returns every event in `existingEvents` whose time range overlaps

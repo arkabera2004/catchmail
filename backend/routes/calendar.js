@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { supabase } from '../db/supabase.js';
 import { requireAuth } from '../middleware/requireAuth.js';
-import { syncTasksToCalendar } from '../services/calendar.js';
+import { syncTasksToCalendar, listEvents, validateEventsRange } from '../services/calendar.js';
 
 const router = Router();
 router.use(requireAuth);
@@ -33,6 +33,29 @@ router.post('/sync', async (req, res) => {
     res.json(result);
   } catch (err) {
     console.error('[calendar] sync failed:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Lists events on the user's Google Calendar within a date range, for the
+// hourly/daily/weekly/monthly calendar page.
+router.get('/events', async (req, res) => {
+  const { error: validationError } = validateEventsRange(req.query);
+  if (validationError) return res.status(400).json({ error: validationError });
+
+  try {
+    const { data: user, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', req.session.userId)
+      .maybeSingle();
+    if (userError) return res.status(500).json({ error: userError.message });
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const events = await listEvents(user, req.query.start, req.query.end);
+    res.json({ events });
+  } catch (err) {
+    console.error('[calendar] list events failed:', err);
     res.status(500).json({ error: err.message });
   }
 });
