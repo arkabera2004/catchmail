@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import Landing from './pages/Landing.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Settings from './pages/Settings.jsx';
+import CalendarPage from './pages/Calendar.jsx';
 import Pricing from './pages/Pricing.jsx';
 import About from './pages/About.jsx';
 import Contact from './pages/Contact.jsx';
@@ -17,6 +18,7 @@ export default function App() {
       <Route path="/" element={<Landing />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/settings" element={<Settings />} />
+      <Route path="/calendar" element={<CalendarPage />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />

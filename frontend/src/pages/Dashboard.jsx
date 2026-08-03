@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import Fuse from 'fuse.js';
 import { api } from '../lib/api.js';
 import TaskRow from '../components/TaskRow.jsx';
@@ -270,6 +271,9 @@ export default function Dashboard() {
         <div className="max-w-5xl mx-auto px-6 py-2.5 flex items-center justify-between">
           <span className="text-base font-bold text-slate-900 dark:text-white tracking-tight">CatchMail</span>
           <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+            <Link to="/calendar" className="hover:text-slate-900 dark:hover:text-white transition">
+              Calendar
+            </Link>
             <span className="px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs font-medium capitalize hidden sm:inline">{user?.plan} plan</span>
             <ThemeToggle />
             <AccountMenu user={user} />
