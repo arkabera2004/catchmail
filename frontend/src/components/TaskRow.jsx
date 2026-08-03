@@ -29,7 +29,7 @@ export default function TaskRow({ task, onToggleDone, onDeadlineChange, onDelete
   const deadlineValue = task.deadline ? task.deadline.slice(0, 10) : '';
 
   return (
-    <div className="flex items-center gap-4 py-3.5 px-4 border-b border-slate-100 dark:border-slate-800 last:border-b-0 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+    <div className="flex items-center gap-3 py-2 px-3 border-b border-slate-100 dark:border-slate-800 last:border-b-0 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
       <input
         type="checkbox"
         checked={task.status === 'done'}

@@ -127,8 +127,8 @@ export default function Settings() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
       <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link to="/dashboard" className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
+        <div className="max-w-2xl mx-auto px-6 py-2.5 flex items-center justify-between">
+          <Link to="/dashboard" className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
             CatchMail
           </Link>
           <div className="flex items-center gap-3">
@@ -141,18 +141,18 @@ export default function Settings() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-8 space-y-5">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Settings</h1>
+      <main className="max-w-2xl mx-auto px-6 py-5 space-y-3">
+        <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Settings</h1>
 
         {message && (
-          <div className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-sm px-4 py-2.5 rounded-lg animate-fade-in">{message}</div>
+          <div className="bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 text-sm px-3 py-2 rounded-lg animate-fade-in">{message}</div>
         )}
 
-        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-3">
+        <section className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-4 space-y-2.5">
           <h2 className="font-semibold text-slate-900 dark:text-white">Account</h2>
           <div className="flex items-center gap-3">
             {user.picture ? (
-              <img src={user.picture} alt={user.name || user.email} className="w-12 h-12 rounded-full object-cover" />
+              <img src={user.picture} alt={user.name || user.email} referrerPolicy="no-referrer" className="w-12 h-12 rounded-full object-cover" />
             ) : (
               <div className="w-12 h-12 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-lg">
                 {(user.name || user.email).charAt(0).toUpperCase()}
@@ -174,7 +174,7 @@ export default function Settings() {
           )}
         </section>
 
-        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-3">
+        <section className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-4 space-y-2.5">
           <h2 className="font-semibold text-slate-900 dark:text-white">Gmail sync</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             {user.paused ? 'Scanning is currently paused.' : 'Scanning runs every 15 minutes.'}
@@ -189,7 +189,7 @@ export default function Settings() {
           </div>
         </section>
 
-        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-3">
+        <section className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-4 space-y-2.5">
           <h2 className="font-semibold text-slate-900 dark:text-white">VIP senders</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Tasks from these senders get a priority badge and an immediate push notification instead of waiting for the daily digest.
@@ -221,7 +221,7 @@ export default function Settings() {
           )}
         </section>
 
-        <section className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 space-y-4">
+        <section className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 p-4 space-y-3">
           <h2 className="font-semibold text-slate-900 dark:text-white">Notifications</h2>
 
           <div className="flex items-center justify-between">
@@ -310,7 +310,7 @@ export default function Settings() {
           </div>
         </section>
 
-        <section className="bg-white dark:bg-slate-900 rounded-xl border border-red-200 dark:border-red-900/50 p-5 space-y-3">
+        <section className="bg-white dark:bg-slate-900 rounded-lg border border-red-200 dark:border-red-900/50 p-4 space-y-2.5">
           <h2 className="font-semibold text-red-700 dark:text-red-400">Danger zone</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400">Permanently delete your account and all extracted tasks.</p>
           <button onClick={handleDeleteAll} className="bg-red-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-red-700 transition">

@@ -145,8 +145,8 @@ export default function Landing() {
 
       <MarketingHeader />
 
-      <main className="max-w-3xl mx-auto w-full px-6 pt-16 pb-24 text-center flex flex-col items-center gap-8 animate-fade-in">
-        <h1 className="text-4xl sm:text-6xl font-extrabold leading-[1.05] tracking-tight">
+      <main className="max-w-3xl mx-auto w-full px-6 pt-12 pb-16 text-center flex flex-col items-center gap-6 animate-fade-in">
+        <h1 className="text-3xl sm:text-5xl font-extrabold leading-[1.05] tracking-tight">
           Never miss a task
           <br />
           hidden in an email again.
@@ -180,15 +180,15 @@ export default function Landing() {
         </p>
       </main>
 
-      <section className="max-w-4xl mx-auto w-full px-6 pb-24">
+      <section className="max-w-4xl mx-auto w-full px-6 pb-16">
         <ProductPreview />
       </section>
 
-      <section className="max-w-5xl mx-auto w-full px-6 pb-24 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <section className="max-w-5xl mx-auto w-full px-6 pb-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {FEATURES.map((f) => (
           <div
             key={f.title}
-            className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 p-6 text-left transition hover:border-slate-200 dark:hover:border-slate-700 hover:shadow-md hover:-translate-y-0.5"
+            className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/60 p-5 text-left transition hover:border-slate-200 dark:hover:border-slate-700 hover:shadow-md hover:-translate-y-0.5"
           >
             <div className="w-11 h-11 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-4">
               {f.icon}
@@ -199,12 +199,12 @@ export default function Landing() {
         ))}
       </section>
 
-      <section className="max-w-5xl mx-auto w-full px-6 pb-24">
-        <h2 className="text-3xl font-extrabold tracking-tight text-center mb-12">How it works</h2>
-        <div className="grid sm:grid-cols-3 gap-8">
+      <section className="max-w-5xl mx-auto w-full px-6 pb-16">
+        <h2 className="text-3xl font-extrabold tracking-tight text-center mb-8">How it works</h2>
+        <div className="grid sm:grid-cols-3 gap-6">
           {STEPS.map((s) => (
             <div key={s.step} className="text-center sm:text-left">
-              <div className="w-9 h-9 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center font-bold text-sm mb-4 mx-auto sm:mx-0">
+              <div className="w-9 h-9 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center font-bold text-sm mb-3 mx-auto sm:mx-0">
                 {s.step}
               </div>
               <h3 className="font-semibold text-slate-900 dark:text-white mb-1.5">{s.title}</h3>
@@ -214,8 +214,8 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="max-w-4xl mx-auto w-full px-6 pb-24">
-        <div className="rounded-3xl bg-slate-900 dark:bg-slate-900 border dark:border-slate-800 text-white px-8 py-14 text-center">
+      <section className="max-w-4xl mx-auto w-full px-6 pb-16">
+        <div className="rounded-3xl bg-slate-900 dark:bg-slate-900 border dark:border-slate-800 text-white px-8 py-10 text-center">
           <h2 className="text-3xl font-extrabold tracking-tight mb-3">Ready to stop re-reading your inbox?</h2>
           <p className="text-slate-300 mb-8 max-w-lg mx-auto">
             Free to start. Upgrade only if your inbox needs more than 30 tasks a month.

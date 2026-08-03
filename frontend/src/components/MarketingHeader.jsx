@@ -11,7 +11,7 @@ const NAV_LINKS = [
 
 export default function MarketingHeader() {
   return (
-    <header className="max-w-6xl mx-auto w-full px-6 py-6 flex items-center justify-between">
+    <header className="max-w-6xl mx-auto w-full px-6 py-4 flex items-center justify-between">
       <Link to="/" className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-lg bg-slate-900 dark:bg-white flex items-center justify-center">
           <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4 text-white dark:text-slate-900">
