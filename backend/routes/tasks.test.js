@@ -49,3 +49,18 @@ test('accepts a snoozed_until timestamp', () => {
 test('accepts a null snoozed_until (unsnoozing)', () => {
   assert.deepEqual(buildTaskUpdates({ snoozed_until: null }), { updates: { snoozed_until: null } });
 });
+
+test('rejects a malformed deadline string', () => {
+  const result = buildTaskUpdates({ deadline: 'not-a-date' });
+  assert.ok(result.error);
+});
+
+test('rejects a malformed snoozed_until string', () => {
+  const result = buildTaskUpdates({ snoozed_until: 'whenever' });
+  assert.ok(result.error);
+});
+
+test('rejects a non-string, non-null deadline', () => {
+  const result = buildTaskUpdates({ deadline: 12345 });
+  assert.ok(result.error);
+});
